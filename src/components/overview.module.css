@@ -1,0 +1,40 @@
+.row1 {
+  /* padding: 0 15rem; */
+  font-size: x-large;
+  font-weight: bold;
+}
+
+.row2 {
+  /* margin: 0 1rem; */
+  font-size: xx-large;
+}
+
+.col {
+  /* padding: 0 3rem; */
+}
+
+.spinnerWrapper {
+  /* display: flex; */
+}
+
+.spinner {
+  /* margin-left: 20px; */
+}
+
+.percent {
+  font-size: x-large;
+  margin-left: 15px;
+}
+
+.capitalTotal {
+  margin-left: 15px;
+}
+
+.type {
+  font-size: 35px;
+  text-transform: capitalize;
+}
+.typeMobile {
+  font-size: 25px;
+  text-transform: capitalize;
+}

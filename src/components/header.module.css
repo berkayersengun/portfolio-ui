@@ -1,0 +1,8 @@
+.tab {
+  max-height: 100px;
+  color: red;
+}
+
+.tab:hover {
+  background-color: var(--bs-gray-300);
+}
