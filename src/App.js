@@ -7,7 +7,7 @@ import { HOLDING_TYPE } from "./utils/constants";
 import { minToMillisec, removeCookie } from "./utils/common";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Login from "./components/Login";
-import Axios from "./services/axios2";
+import Axios from "./services/axios";
 import { Modal, Button } from "react-bootstrap";
 import Cookies from "js-cookie";
 
@@ -26,7 +26,7 @@ function App() {
     message: "",
   });
   const [showAddModal, setShowAddModal] = useState(false);
-  const [holdingAdded, setHoldingAdded] = useState("");
+  const [timerState, setTimerState] = useState("");
   const [expanded, setExpanded] = useState({ open: {} });
   const [errorMessage, setErrorMessage] = useState("");
   const [portfolio, setPortfolio] = useState({
@@ -152,7 +152,7 @@ function App() {
   useEffect(() => {
     const cookie = Cookies.get("userInfo");
     let timerId = 0;
-    if (cookie || holdingAdded) {
+    if (cookie || timerState) {
       const userInfo = JSON.parse(Cookies.get("userInfo"));
       // timerId = setInterval(fetchPort, minToMillisec(0.2), userInfo);
       fetchPort(userInfo).then((response) => {
@@ -171,7 +171,7 @@ function App() {
         clearInterval(timerId);
       }
     };
-  }, [loggedIn, holdingAdded]);
+  }, [loggedIn, timerState]);
 
   useEffect(() => {
     if (showAddModal || errorModalState.isError) {
@@ -212,13 +212,15 @@ function App() {
           type={type}
           portfolio={portfolio}
           loadingState={userInfo.loading}
+          timerId={userInfo.timerId}
+          setTimerState={setTimerState}
         ></Overview>
         <HoldingTable
           holdingsData={holdingsData}
           expanded={expanded}
           setExpanded={setExpanded}
           timerId={userInfo.timerId}
-          setHoldingAdded={setHoldingAdded}
+          setTimerState={setTimerState}
         ></HoldingTable>
         <ErrorModal
           show={errorModalState.isError}

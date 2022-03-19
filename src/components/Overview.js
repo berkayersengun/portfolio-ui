@@ -1,88 +1,105 @@
-import React from "react";
+import React, { Fragment, useState } from "react";
 import styles from "./overview.module.css";
-import { Col, Row, Container, Spinner } from "react-bootstrap";
-import { getCurrencySymbol } from "../utils/common";
+import { Col, Row, Container, Spinner, Button, Form } from "react-bootstrap";
+import { getCurrencySymbol, getStyleForChange } from "../utils/common";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Axios from "../services/axios";
+import Cookies from "js-cookie";
 
-const upArrow = "\u2191";
-const downArrow = "\u2193";
-const leftRightArrow = "\u21CC";
-
-const LoadingComponent = () => {
-  return (
-    <>
-      <div className={styles.spinnerWrapper}>
-        <Spinner
-          animation="border"
-          role="status"
-          className={styles.spinner}
-        ></Spinner>
-        {/* <span style={{ fontSize: "22px" }}>...</span> */}
-      </div>
-    </>
-  );
-};
-
-const Type = ({ type, loadingState, currency, className }) => {
-  if (loadingState) {
-    return <LoadingComponent></LoadingComponent>;
-  }
-  return (
-    <div
-      className={className}
-      // style={{ fontSize: "35px", textTransform: "capitalize" }}
+const CapitalField = ({
+  editableCapital,
+  capitalValue,
+  capitalTotal,
+  handleChangeCapital,
+  handleSubmitCapital,
+  handleEditCapital,
+  handleOnKeyPress,
+  type,
+}) => {
+  let fields = [];
+  let button = (
+    <Button
+      variant="outline-secondary"
+      className="ms-3 py-1 px-2"
+      onClick={handleEditCapital}
     >
-      {type} ({currency})
-    </div>
+      <FontAwesomeIcon icon="pen-to-square" size="lg" />
+    </Button>
   );
-};
-
-const getStyleForChange = (percentage) => {
-  const style = {
-    colorindicator: { color: "" },
-    minusPlus: " ",
-    arrow: leftRightArrow,
-  };
-
-  if (percentage < 0) {
-    style.colorindicator = { color: "red" };
-    style.arrow = downArrow;
-  } else if (percentage === 0) {
-    style.colorindicator = { color: "dimgray" };
-  } else {
-    style.colorindicator = { color: "green" };
-    style.minusPlus = " +";
-    style.arrow = upArrow;
-  }
-  return style;
-};
-
-const PriceView = ({ total, change }) => {
-  const percentStyle = getStyleForChange(change.percentage);
-  let percent = " -";
-  if (total !== 0) {
-    percent = (
-      <>
-        <span className={styles.percent}>
-          {percentStyle.minusPlus}
-          {change.percentage}%
-        </span>
-        {percentStyle.arrow}
-      </>
+  if (editableCapital) {
+    button = (
+      <Button
+        type="submit"
+        variant="outline-success"
+        className="ms-3 py-1 px-2"
+        onClick={handleSubmitCapital}
+      >
+        <FontAwesomeIcon icon="check" size="lg" />
+      </Button>
     );
+    fields = (
+      <Form className="mb-2" as={Row}>
+        <FormCapital
+          capitalValue={capitalValue}
+          handleChangeCapital={handleChangeCapital}
+          handleSubmitCapital={handleSubmitCapital}
+          handleOnKeyPress={handleOnKeyPress}
+        ></FormCapital>
+      </Form>
+    );
+  } else {
+    fields = Object.entries(capitalValue).map(([type, value], i) => (
+      <Fragment key={i}>
+        <Col style={{ textTransform: "capitalize" }}>
+          <span className="fw-bold">{type}</span>: {value}
+        </Col>
+      </Fragment>
+    ));
   }
 
   return (
-    <Col style={percentStyle.colorindicator}>
-      {percentStyle.minusPlus}
-      {change.value}
-      {percent}
-    </Col>
+    <Fragment>
+      <Row>
+        <Col className="mb-2 fs-2">
+          {capitalTotal}
+          {button}
+        </Col>
+      </Row>
+      <Row>{type !== "total" && !editableCapital ? "" : fields}</Row>
+    </Fragment>
   );
 };
 
-const dashIfEmpty = (value) => (value !== 0 ? value : "-");
-
-const Overview = ({ type, portfolio, loadingState }) => {
+const FormCapital = ({
+  capitalValue,
+  handleChangeCapital,
+  handleOnKeyPress,
+}) => {
+  return Object.entries(capitalValue).map(([type, value], i) => (
+    <Form.Group key={type} as={Row} className="align-items-center">
+      <Form.Label column xl="4" style={{ textTransform: "capitalize" }}>
+        {type}
+      </Form.Label>
+      <Col xl="8">
+        <Form.Control
+          size="sm"
+          keyname={type}
+          value={value}
+          onChange={handleChangeCapital}
+          onKeyPress={handleOnKeyPress}
+          type="number"
+        />
+      </Col>
+    </Form.Group>
+  ));
+};
+const Overview = ({
+  type,
+  portfolio,
+  loadingState,
+  timerId,
+  setTimerState,
+}) => {
   const purchaseTotal = portfolio.overview.purchase[type];
   const capitalTotal = portfolio.overview.capital[type];
   const currentTotal = portfolio.overview.current[type];
@@ -91,6 +108,104 @@ const Overview = ({ type, portfolio, loadingState }) => {
   const changeDaily = portfolio.overview.change_daily[type];
   const changeProps = getStyleForChange(changePurchase.percentage);
   const currency = getCurrencySymbol(portfolio.currency);
+  const [editableCapital, setEditableCapital] = useState(false);
+  let { total: cap, ...capitalWithoutTotal } = portfolio.overview.capital;
+  cap =
+    type === "total"
+      ? capitalWithoutTotal
+      : { [type]: portfolio.overview.capital[type] };
+  const [capitalValue, setCapitalValue] = useState(cap);
+  console.log(capitalValue);
+  // TODO overview renders twice when you change tabs
+  const LoadingComponent = () => {
+    return (
+      <>
+        <div className={styles.spinnerWrapper}>
+          <Spinner
+            animation="border"
+            role="status"
+            className={styles.spinner}
+          ></Spinner>
+          {/* <span style={{ fontSize: "22px" }}>...</span> */}
+        </div>
+      </>
+    );
+  };
+
+  const Type = ({ type, loadingState, currency, className }) => {
+    if (loadingState) {
+      return <LoadingComponent></LoadingComponent>;
+    }
+    return (
+      <div
+        className={className}
+        // style={{ fontSize: "35px", textTransform: "capitalize" }}
+      >
+        {type} ({currency})
+      </div>
+    );
+  };
+
+  const handleSubmitCapital = async (event) => {
+    event.preventDefault();
+    setEditableCapital(!editableCapital);
+    const userInfo = JSON.parse(Cookies.get("userInfo"));
+    console.log(event);
+    try {
+      const response = await new Axios(userInfo.token).updateCapital(
+        userInfo.username,
+        capitalValue
+      );
+      setTimerState(Date.now());
+    } catch (error) {
+      // TODO add this error somewhere
+      console.log(error.response.data);
+    }
+  };
+
+  const handleOnKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleSubmitCapital(event);
+    }
+  };
+
+  const handleEditCapital = (event) => {
+    clearInterval(timerId);
+    setEditableCapital(!editableCapital);
+  };
+  const handleChangeCapital = (event) => {
+    setCapitalValue({
+      ...capitalValue,
+      [event.target.attributes.keyname.value]: event.target.value,
+    });
+    console.log(event);
+  };
+
+  const PriceView = ({ total, change }) => {
+    const percentStyle = getStyleForChange(change.percentage);
+    let percent = " -";
+    if (total !== 0) {
+      percent = (
+        <>
+          <span className={styles.percent}>
+            {percentStyle.minusPlus}
+            {change.percentage}%
+          </span>
+          {percentStyle.arrow}
+        </>
+      );
+    }
+
+    return (
+      <Col className="mb-2" style={percentStyle.colorindicator}>
+        {percentStyle.minusPlus}
+        {change.value}
+        {percent}
+      </Col>
+    );
+  };
+
+  const dashIfEmpty = (value) => (value !== 0 ? value : "-");
 
   return (
     <Container fluid className="my-2 text-center">
@@ -123,20 +238,20 @@ const Overview = ({ type, portfolio, loadingState }) => {
       <Row>
         <Col xs={12} xl={2}>
           <Row className={`align-self-center ${styles.row2} border`}>
-            <Col className={`${styles.row2} fst-italic `} xs={12}>
+            <Col className={`fst-italic `} xs={12}>
               Daily
             </Col>
-            <Col className={`${styles.row2} `}>
+            <Col className="mb-3">
               <PriceView total={currentTotal} change={changeDaily}></PriceView>
             </Col>
           </Row>
         </Col>
         <Col xs={12} xl={2}>
-          <Row className="border">
-            <Col className={`${styles.row2} fst-italic`} xs={12}>
+          <Row className={`border ${styles.row2}`}>
+            <Col className={`fst-italic`} xs={12}>
               Net
             </Col>
-            <Col className={`${styles.row2} `}>
+            <Col className="mb-3">
               <PriceView
                 total={currentTotal}
                 change={changeCapital}
@@ -145,11 +260,11 @@ const Overview = ({ type, portfolio, loadingState }) => {
           </Row>
         </Col>
         <Col xs={12} xl={2}>
-          <Row className="border">
-            <Col className={`${styles.row2} fst-italic `} xs={12}>
+          <Row className={`border ${styles.row2}`}>
+            <Col className={`fst-italic`} xs={12}>
               Purchase
             </Col>
-            <Col className={`${styles.row2} `}>
+            <Col className="mb-3">
               <PriceView
                 total={purchaseTotal}
                 change={changePurchase}
@@ -158,13 +273,13 @@ const Overview = ({ type, portfolio, loadingState }) => {
           </Row>
         </Col>
         <Col xs={12} xl={2}>
-          <Row className="border">
-            <Col className={`${styles.row2} fst-italic `} xl={12} xs={5}>
+          <Row className={`border ${styles.row2}`}>
+            <Col className={`fst-italic`} xl={12} xs={5}>
               Current
             </Col>
             <Col
               style={changeProps.colorindicator}
-              className={`${styles.row2} `}
+              className="mb-4"
               xl={12}
               xs={7}
             >
@@ -173,27 +288,36 @@ const Overview = ({ type, portfolio, loadingState }) => {
           </Row>
         </Col>
         <Col xs={12} xl={2}>
-          <Row className="border justify-content-center">
-            <Col className={`${styles.row2} fst-italic `} xl={12} xs={5}>
+          <Row className={`border justify-content-center ${styles.row2}`}>
+            <Col className={`fst-italic`} xl={12} xs={5}>
               Purchase
             </Col>
-            <Col className={`${styles.row2}`} xs={7}>
+            <Col xs={7} className="mb-4">
               {purchaseTotal}
             </Col>
           </Row>
         </Col>
-        <Col xs={12} xl={2}>
-          <Row className="border justify-content-center">
-            <Col className={`${styles.row2} fst-italic `} xl={12} xs={5}>
+        <Col xs={12} xl={2} className="border">
+          <Row className={`justify-content-center ${styles.row2}`}>
+            <Col className={`fst-italic`} xl={12} xs={5}>
               Capital
             </Col>
-            <Col className={`${styles.row2}`} xs={7}>
-              {/* <span style={{ marginLeft: "15px" }}> */}
-              {/* {dashIfEmpty(` ${capitalTotal}`)} */}
-              {capitalTotal}
-              {/* </span> */}
-            </Col>
           </Row>
+          {/* <Col xs={7} className="mb-2"> */}
+          {/* <span style={{ marginLeft: "15px" }}> */}
+          {/* {dashIfEmpty(` ${capitalTotal}`)} */}
+          {/* </span> */}
+          <CapitalField
+            capitalTotal={capitalTotal}
+            editableCapital={editableCapital}
+            capitalValue={capitalValue}
+            handleChangeCapital={handleChangeCapital}
+            handleEditCapital={handleEditCapital}
+            handleSubmitCapital={handleSubmitCapital}
+            handleOnKeyPress={handleOnKeyPress}
+            type={type}
+          ></CapitalField>
+          {/* </Col> */}
         </Col>
       </Row>
     </Container>

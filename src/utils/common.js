@@ -36,3 +36,25 @@ export const getCookie = (name, path = "/") => {
     Cookies.remove(name, { path: path });
   }
 };
+
+export const getStyleForChange = (percentage) => {
+  const upArrow = "\u2191";
+  const downArrow = "\u2193";
+  const leftRightArrow = "\u21CC";
+  const style = {
+    colorindicator: { color: "" },
+    minusPlus: " ",
+    arrow: leftRightArrow,
+  };
+  if (percentage < 0) {
+    style.colorindicator = { color: "red" };
+    style.arrow = downArrow;
+  } else if (percentage === 0) {
+    style.colorindicator = { color: "dimgray" };
+  } else {
+    style.colorindicator = { color: "green" };
+    style.minusPlus = " +";
+    style.arrow = upArrow;
+  }
+  return style;
+};

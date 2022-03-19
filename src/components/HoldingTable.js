@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Button, Table } from "react-bootstrap";
 import HoldingModal from "./HoldingModal";
-import { getCurrencySymbol } from "../utils/common";
 import { CURRENCY } from "../utils/constants";
 import styles from "./holdingTable.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getCurrencySymbol, getStyleForChange } from "../utils/common";
 
 // nfn: named function
 
 export default function HoldingTable({
   holdingsData,
-  setHoldingAdded,
+  setTimerState,
   expanded,
   setExpanded,
   timerId,
@@ -70,21 +70,44 @@ export default function HoldingTable({
           {getCurrencySymbol(holding.currency)}
           {Number(holding.price.purchase)}
         </td>
-        <td className={cellPadding}>
+        <td
+          className={cellPadding}
+          style={getStyleForChange(holding.gain.percentage).colorindicator}
+        >
           {getCurrencySymbol(holding.currency)}
           {Number(holding.price.current)}
         </td>
-        <td className={cellPadding}>
+        <td
+          className={cellPadding}
+          style={
+            getStyleForChange(holding.change_24H.percentage).colorindicator
+          }
+        >
           {getCurrencySymbol(holding.currency)}
           {holding.change_24H.value}
         </td>
-        <td className={cellPadding}>{holding.change_24H.percentage}%</td>
+        <td
+          className={cellPadding}
+          style={
+            getStyleForChange(holding.change_24H.percentage).colorindicator
+          }
+        >
+          {holding.change_24H.percentage}%
+        </td>
         <td className={cellPadding}>{holding.quantity}</td>
-        <td className={cellPadding}>
+        <td
+          className={cellPadding}
+          style={getStyleForChange(holding.gain.percentage).colorindicator}
+        >
           {getCurrencySymbol(holding.currency)}
           {holding.gain.value}
         </td>
-        <td className={cellPadding}>{holding.gain.percentage}%</td>
+        <td
+          className={cellPadding}
+          style={getStyleForChange(holding.gain.percentage).colorindicator}
+        >
+          {holding.gain.percentage}%
+        </td>
         <td className={cellPadding}>
           {getCurrencySymbol(holding.currency)}
           {Number(holding.value.current)}
@@ -175,7 +198,7 @@ export default function HoldingTable({
         setHolding={setHolding}
         show={showAddModal}
         onHide={() => {
-          setHoldingAdded(Date.now());
+          setTimerState(Date.now());
           setShowAddModal(false);
           setHolding({ currency: CURRENCY.EUR.value });
         }}

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import Axios from "../services/axios2";
+import Axios from "../services/axios";
 import styles from "./login.module.css";
 import { Form, Button, Alert } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 import { minToMillisec } from "../utils/common";
+import RegisterModal from "./RegisterModal";
 
 const Login = ({ setLoggedIn }) => {
   const navigate = useNavigate();
@@ -12,13 +13,13 @@ const Login = ({ setLoggedIn }) => {
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
   const [errorMessage, setErrorMessage] = useState("");
+  const [showRegister, setShowRegister] = useState(false);
 
   let from = location.state?.from?.pathname || "/";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let axios = new Axios();
-    axios
+    new Axios()
       .login({
         username,
         password,
@@ -77,7 +78,6 @@ const Login = ({ setLoggedIn }) => {
             We'll never share your email with anyone else.
           </Form.Text>
         </Form.Group>
-
         <Form.Group className="mb-3" controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>
           <Form.Control
@@ -90,10 +90,24 @@ const Login = ({ setLoggedIn }) => {
           <Form.Check type="checkbox" label="Remember me" />
         </Form.Group>
         <Button variant="primary" type="submit" onClick={handleSubmit}>
-          Submit
+          Login
+        </Button>
+        <Button
+          variant="outline-success"
+          // type="submit"
+          onClick={() => setShowRegister(true)}
+          className="ms-2"
+        >
+          Register
         </Button>
       </Form>
       <AlertMessage></AlertMessage>
+      <RegisterModal
+        show={showRegister}
+        onHide={() => {
+          setShowRegister(false);
+        }}
+      ></RegisterModal>
     </>
     // <div className={styles.login}>
     //   <h1>Please Log In</h1>

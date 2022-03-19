@@ -13,6 +13,8 @@ import {
   faCaretLeft,
   faCaretDown,
   faCaretRight,
+  faPenToSquare,
+  faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
@@ -23,7 +25,9 @@ library.add(
   faChevronDown,
   faCaretLeft,
   faCaretDown,
-  faCaretRight
+  faCaretRight,
+  faPenToSquare,
+  faCheck
 );
 
 ReactDOM.render(
