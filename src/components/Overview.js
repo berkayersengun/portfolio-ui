@@ -1,6 +1,14 @@
 import React, { Fragment, useState } from "react";
 import styles from "./overview.module.css";
-import { Col, Row, Container, Spinner, Button, Form } from "react-bootstrap";
+import {
+  Col,
+  Row,
+  Container,
+  Spinner,
+  Button,
+  Form,
+  Card,
+} from "react-bootstrap";
 import { getCurrencySymbol, getStyleForChange } from "../utils/common";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Axios from "../services/axios";
@@ -115,7 +123,6 @@ const Overview = ({
       ? capitalWithoutTotal
       : { [type]: portfolio.overview.capital[type] };
   const [capitalValue, setCapitalValue] = useState(cap);
-  console.log(capitalValue);
   // TODO overview renders twice when you change tabs
   const LoadingComponent = () => {
     return (
@@ -133,10 +140,11 @@ const Overview = ({
   };
 
   const Type = ({ type, loadingState, currency, className }) => {
+    let component;
     if (loadingState) {
-      return <LoadingComponent></LoadingComponent>;
+      type = <LoadingComponent></LoadingComponent>;
     }
-    return (
+    component = (
       <div
         className={className}
         // style={{ fontSize: "35px", textTransform: "capitalize" }}
@@ -144,13 +152,14 @@ const Overview = ({
         {type} ({currency})
       </div>
     );
+
+    return component;
   };
 
   const handleSubmitCapital = async (event) => {
     event.preventDefault();
     setEditableCapital(!editableCapital);
     const userInfo = JSON.parse(Cookies.get("userInfo"));
-    console.log(event);
     try {
       const response = await new Axios(userInfo.token).updateCapital(
         userInfo.username,
@@ -173,12 +182,12 @@ const Overview = ({
     clearInterval(timerId);
     setEditableCapital(!editableCapital);
   };
+
   const handleChangeCapital = (event) => {
     setCapitalValue({
       ...capitalValue,
       [event.target.attributes.keyname.value]: event.target.value,
     });
-    console.log(event);
   };
 
   const PriceView = ({ total, change }) => {
@@ -219,105 +228,109 @@ const Overview = ({
           ></Type>
         </Col>
       </Row>
-      <Row className={`${styles.row1} d-none d-sm-flex align-items-center`}>
-        <Col className="border py-2" xl={6} xs={6}>
-          CHANGE ({currency})
+      <Row className={`${styles.row1} d-none d-xl-flex align-items-center`}>
+        <Col as={Card} className=" py-2">
+          CHANGE
         </Col>
-        <Col xl={4} xs={6} className="border py-2">
+        <Col as={Card} xl={4} className=" py-2">
           VALUE ({currency})
         </Col>
         <Col xl={2} className="py-1">
-          <Type
-            type={type}
-            loadingState={loadingState}
-            currency={currency}
-            className={styles.type}
-          ></Type>
+          <Card>
+            <Type
+              type={type}
+              loadingState={loadingState}
+              currency={currency}
+              className={styles.type}
+            ></Type>
+          </Card>
         </Col>
       </Row>
       <Row>
-        <Col xs={12} xl={2}>
-          <Row className={`align-self-center ${styles.row2} border`}>
-            <Col className={`fst-italic `} xs={12}>
-              Daily
-            </Col>
-            <Col className="mb-3">
-              <PriceView total={currentTotal} change={changeDaily}></PriceView>
-            </Col>
+        <Col xs={12} xl={2} lg={4}>
+          <Row className={`align-self-center ${styles.row2} `}>
+            <Card body>
+              <Col className={`fst-italic `}>Daily</Col>
+              <Col className="mb-3">
+                <PriceView
+                  total={currentTotal}
+                  change={changeDaily}
+                ></PriceView>
+              </Col>
+            </Card>
           </Row>
         </Col>
-        <Col xs={12} xl={2}>
-          <Row className={`border ${styles.row2}`}>
-            <Col className={`fst-italic`} xs={12}>
-              Net
-            </Col>
-            <Col className="mb-3">
-              <PriceView
-                total={currentTotal}
-                change={changeCapital}
-              ></PriceView>
-            </Col>
+        <Col xs={12} xl={2} lg={4}>
+          <Row className={` ${styles.row2}`}>
+            <Card body>
+              <Col className={`fst-italic`}>Net</Col>
+              <Col className="mb-3">
+                <PriceView
+                  total={currentTotal}
+                  change={changeCapital}
+                ></PriceView>
+              </Col>
+            </Card>
           </Row>
         </Col>
-        <Col xs={12} xl={2}>
-          <Row className={`border ${styles.row2}`}>
-            <Col className={`fst-italic`} xs={12}>
-              Purchase
-            </Col>
-            <Col className="mb-3">
-              <PriceView
-                total={purchaseTotal}
-                change={changePurchase}
-              ></PriceView>
-            </Col>
+        <Col xs={12} xl={2} lg={4}>
+          <Row className={` ${styles.row2}`}>
+            <Card body>
+              <Col className={`fst-italic`} xs={12}>
+                Purchase
+              </Col>
+              <Col className="mb-3">
+                <PriceView
+                  total={purchaseTotal}
+                  change={changePurchase}
+                ></PriceView>
+              </Col>
+            </Card>
           </Row>
         </Col>
-        <Col xs={12} xl={2}>
-          <Row className={`border ${styles.row2}`}>
-            <Col className={`fst-italic`} xl={12} xs={5}>
-              Current
-            </Col>
-            <Col
-              style={changeProps.colorindicator}
-              className="mb-4"
-              xl={12}
-              xs={7}
-            >
-              {currentTotal} {changeProps.arrow}
-            </Col>
+        <Col xs={12} xl={2} lg={4}>
+          <Row className={` ${styles.row2}`}>
+            <Card body>
+              <Col className={`fst-italic`}>Current</Col>
+              <Col style={changeProps.colorindicator} className="mb-4">
+                {currentTotal} {changeProps.arrow}
+              </Col>
+            </Card>
           </Row>
         </Col>
-        <Col xs={12} xl={2}>
-          <Row className={`border justify-content-center ${styles.row2}`}>
-            <Col className={`fst-italic`} xl={12} xs={5}>
-              Purchase
-            </Col>
-            <Col xs={7} className="mb-4">
-              {purchaseTotal}
-            </Col>
+        <Col xs={12} xl={2} lg={4}>
+          <Row className={` justify-content-center ${styles.row2}`}>
+            <Card body>
+              <Col className={`fst-italic`} xl={12}>
+                Purchase
+              </Col>
+              <Col xl={12} lg={12} className="mb-4">
+                {purchaseTotal}
+              </Col>
+            </Card>
           </Row>
         </Col>
-        <Col xs={12} xl={2} className="border">
-          <Row className={`justify-content-center ${styles.row2}`}>
-            <Col className={`fst-italic`} xl={12} xs={5}>
-              Capital
-            </Col>
-          </Row>
-          {/* <Col xs={7} className="mb-2"> */}
-          {/* <span style={{ marginLeft: "15px" }}> */}
-          {/* {dashIfEmpty(` ${capitalTotal}`)} */}
-          {/* </span> */}
-          <CapitalField
-            capitalTotal={capitalTotal}
-            editableCapital={editableCapital}
-            capitalValue={capitalValue}
-            handleChangeCapital={handleChangeCapital}
-            handleEditCapital={handleEditCapital}
-            handleSubmitCapital={handleSubmitCapital}
-            handleOnKeyPress={handleOnKeyPress}
-            type={type}
-          ></CapitalField>
-          {/* </Col> */}
+        <Col xs={12} xl={2} lg={4}>
+          <Card body>
+            <Row className={`justify-content-center ${styles.row2}`}>
+              <Col className={`fst-italic`}>Capital</Col>
+            </Row>
+            {/* <Col xs={7} className="mb-2"> */}
+            {/* <span style={{ marginLeft: "15px" }}> */}
+            {/* {dashIfEmpty(` ${capitalTotal}`)} */}
+            {/* </span> */}
+            <CapitalField
+              capitalTotal={capitalTotal}
+              editableCapital={editableCapital}
+              capitalValue={capitalValue}
+              handleChangeCapital={handleChangeCapital}
+              handleEditCapital={handleEditCapital}
+              handleSubmitCapital={handleSubmitCapital}
+              handleOnKeyPress={handleOnKeyPress}
+              type={type}
+            ></CapitalField>
+            {/* </Col> */}
+          </Card>
         </Col>
       </Row>
     </Container>
