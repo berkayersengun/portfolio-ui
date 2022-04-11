@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Form, InputGroup, Button, Modal } from "react-bootstrap";
-import Cookies from "js-cookie";
 import Axios from "../services/axios";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { InputAdornment, IconButton, FormControl } from "@mui/material";
+import { InputAdornment, IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { CURRENCY } from "../utils/constants";
 
@@ -17,11 +16,7 @@ function HoldingForm({ onHide }) {
   const [validated, setValidated] = useState(false);
   const [validation, setValidation] = useState("");
   const [errorMessage, setErrorMessage] = useState({});
-  const [holding, setHolding] = useState({
-    // quantity: 0,
-    // symbol: "",
-    currency: CURRENCY.EUR.value,
-  });
+  const [holding, setHolding] = useState({ currency: CURRENCY.EUR.value });
 
   useEffect(() => {
     if (!open) {
@@ -50,7 +45,17 @@ function HoldingForm({ onHide }) {
     }
   };
 
+  // - add validation for each form field
+  // - check updated values for reset timers in each update works properly
+
   const handleSubmitAddHolding = (event) => {
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    setValidated(true);
+
     let key = "";
     if (event.target.type === "radio") {
       key = event.target.attributes.name.value.toLowerCase();
@@ -61,10 +66,8 @@ function HoldingForm({ onHide }) {
   };
 
   const search = async (symbol) => {
-    const token = JSON.parse(Cookies.get("userInfo")).token;
-    const axios = new Axios(token);
     try {
-      const response = await axios.search(symbol);
+      const response = await new Axios().search(symbol);
       setOptions(
         response.data.map((a) => {
           const name = a.shortname || a.longname;
@@ -104,9 +107,7 @@ function HoldingForm({ onHide }) {
         // ["isFormValid"]: false,
       });
     }
-    const token = JSON.parse(Cookies.get("userInfo")).token;
-    const axios = new Axios(token);
-    axios
+    new Axios()
       .addHolding(holding)
       .then((response) => {
         onHide();
@@ -185,22 +186,22 @@ function HoldingForm({ onHide }) {
             aria-describedby="basic-addon1"
           />
         </InputGroup>
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Quantity</Form.Label>
+        <Form.Label>Quantity</Form.Label>
+        <InputGroup hasValidation className="mb-3">
           <Form.Control
             // isValid={isQuantityValid}
             // isInvalid={!validation.quantity}
-            // required
+            required
             placeholder="Enter Quantity"
             onChange={handleSubmitAddHolding}
             type="number"
             keyname="quantity"
           />
-          {/* <Form.Control.Feedback type="invalid">
-          Please provide a valid quantity.
-        </Form.Control.Feedback> */}
+          <Form.Control.Feedback type="invalid">
+            Please provide a valid quantity.
+          </Form.Control.Feedback>
           <Form.Text className="text-muted"></Form.Text>
-        </Form.Group>
+        </InputGroup>
         <Form.Group className="mb-3">
           <Form.Label>Currency</Form.Label>
           <Form.Select

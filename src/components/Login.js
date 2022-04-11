@@ -3,11 +3,10 @@ import Axios from "../services/axios";
 import styles from "./login.module.css";
 import { Form, Button, Alert } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
-import Cookies from "js-cookie";
 import { minToMillisec } from "../utils/common";
 import RegisterModal from "./RegisterModal";
 
-const Login = ({ setLoggedIn }) => {
+const Login = ({ setLoginInfo, loginInfo }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [username, setUserName] = useState();
@@ -25,14 +24,11 @@ const Login = ({ setLoggedIn }) => {
         password,
       })
       .then((response) => {
-        const userInfo = JSON.stringify({
-          username: username,
-          token: response.data.token,
+        localStorage.setItem("username", username);
+        setLoginInfo({
+          ...loginInfo,
+          timerId: 0,
         });
-        Cookies.set("userInfo", userInfo, {
-          expires: 7,
-        });
-        setLoggedIn(true);
         navigate("/", { replace: true });
       })
       .catch((error) => {

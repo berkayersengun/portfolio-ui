@@ -4,6 +4,9 @@
 
 ![](portfolio.drawio.png)
 
+## JWT Flow
+![](jwt.drawio.png)
+
 ## Services
 
 - [Api](https://github.com/berkayersengun/portfolio-api) (Django Rest Framework)

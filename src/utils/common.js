@@ -1,5 +1,5 @@
 import { CURRENCY } from "../utils/constants";
-import Cookies from "js-cookie";
+import Axios from "../services/axios";
 
 export const getCurrencySymbol = (currency = "EUR") =>
   CURRENCY[currency].symbol;
@@ -9,33 +9,22 @@ const between = (x, min, max) => {
 };
 
 export const round = (number) => {
-  let decimal;
+  let decimalPoint;
 
   if (Math.floor(number) === number) {
-    decimal = 2;
+    decimalPoint = 2;
   } else if (between(number, 0, 0.01) || between(number, -0.01, 0)) {
-    decimal = 10;
+    decimalPoint = 6;
   } else if (between(number, 1, 10) || between(number, -10, -1)) {
-    decimal = 2;
+    decimalPoint = 2;
   } else {
-    decimal = 10;
+    decimalPoint = 2;
   }
-  const decimalPoints = Math.pow(10, decimal);
-  return Math.round(number * decimalPoints) / decimalPoints;
+  const rounded = Math.round(number * Math.pow(10, 10)) / Math.pow(10, 10);
+  return rounded.toFixed(decimalPoint);
 };
 
 export const minToMillisec = (minutes) => minutes * 60000;
-
-export const removeCookie = (name, path = "/") => {
-  if (Cookies.get(name)) {
-    Cookies.remove(name, { path: path });
-  }
-};
-export const getCookie = (name, path = "/") => {
-  if (Cookies.get(name)) {
-    Cookies.remove(name, { path: path });
-  }
-};
 
 export const getStyleForChange = (percentage) => {
   const upArrow = "\u2191";
@@ -58,3 +47,31 @@ export const getStyleForChange = (percentage) => {
   }
   return style;
 };
+
+export const logout = (navigate, timerId, setErrorModalState) => {
+  new Axios()
+    .logout()
+    .then((response) => {
+      localStorage.clear();
+      clearInterval(timerId);
+      if (setErrorModalState) {
+        setErrorModalState({
+          isError: false,
+          message: "",
+        });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  navigate("/login");
+};
+
+function waitForTimeout(seconds) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log("Hello World");
+      resolve();
+    }, seconds * 1000);
+  });
+}

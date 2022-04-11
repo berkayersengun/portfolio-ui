@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button, Table } from "react-bootstrap";
 import HoldingModal from "./HoldingModal";
 import { CURRENCY } from "../utils/constants";
@@ -10,10 +10,10 @@ import { getCurrencySymbol, getStyleForChange } from "../utils/common";
 
 export default function HoldingTable({
   holdingsData,
-  setTimerState,
   expanded,
   setExpanded,
-  timerId,
+  loginInfo,
+  setLoginInfo,
 }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [holding, setHolding] = useState({
@@ -22,7 +22,7 @@ export default function HoldingTable({
 
   const handleAdd = () => {
     setShowAddModal(true);
-    clearInterval(timerId);
+    clearInterval(loginInfo.timerId);
   };
 
   const Arrow = ({ rowNo }) => {
@@ -198,9 +198,9 @@ export default function HoldingTable({
         setHolding={setHolding}
         show={showAddModal}
         onHide={() => {
-          setTimerState(Date.now());
           setShowAddModal(false);
           setHolding({ currency: CURRENCY.EUR.value });
+          setLoginInfo({ ...loginInfo, timerId: 0 });
         }}
       ></HoldingModal>
     </>

@@ -20,7 +20,14 @@ function RegisterForm({ onHide }) {
   }, [user]);
 
   const handleSubmit = (event) => {
-    const axios = new Axios();
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    setValidated(true);
+
     new Axios()
       .addUser(user)
       .then((response) => {
@@ -49,7 +56,7 @@ function RegisterForm({ onHide }) {
 
   return (
     <Modal.Body>
-      <Form noValidate validated={validated}>
+      <Form validated={validated}>
         <Row className="mb-3">
           {/* email */}
           <FloatingLabel
@@ -58,11 +65,15 @@ function RegisterForm({ onHide }) {
             className="mb-3"
           >
             <Form.Control
+              required
               type="email"
               placeholder="name@example.com"
               onChange={handleUserPostData}
               keyname="email"
             />
+            <Form.Control.Feedback type="invalid">
+              {errorMessage.email}
+            </Form.Control.Feedback>
           </FloatingLabel>
           {/* pass */}
           <FloatingLabel
@@ -71,11 +82,15 @@ function RegisterForm({ onHide }) {
             className="mb-3"
           >
             <Form.Control
+              required
               type="password"
               placeholder="Password"
               onChange={handleUserPostData}
               keyname="password"
             />
+            <Form.Control.Feedback type="invalid">
+              {errorMessage.password}
+            </Form.Control.Feedback>
           </FloatingLabel>
           <FloatingLabel
             controlId="floatingInput"
@@ -119,9 +134,12 @@ function RegisterForm({ onHide }) {
               required
               onChange={handleUserPostData}
               keyname="username"
+              // isValid={false}
+              // isInvalid={true}
+              isInvalid={errorMessage.username ? true : false}
             />
             <Form.Control.Feedback type="invalid">
-              Please choose a username.
+              {errorMessage.username}
             </Form.Control.Feedback>
             {/* </InputGroup> */}
           </FloatingLabel>
@@ -148,15 +166,15 @@ function RegisterForm({ onHide }) {
             <Col sm={10}>
               <Form.Control
                 // isValid={isQuantityValid}
-                // isInvalid={!validation.quantity}
-                // required
+                // isInvalid={false}
+                required
                 placeholder="Crypto"
                 // onChange={handleSubmitAddHolding}
                 type="number"
                 defaultValue={0}
                 keyname="crypto"
                 onChange={handleUserPostData}
-              />{" "}
+              />
             </Col>
           </Form.Group>
           <Form.Group
@@ -171,7 +189,7 @@ function RegisterForm({ onHide }) {
               <Form.Control
                 // isValid={isQuantityValid}
                 // isInvalid={!validation.quantity}
-                // required
+                required
                 placeholder="Crypto"
                 // onChange={handleSubmitAddHolding}
                 type="number"
@@ -190,11 +208,11 @@ function RegisterForm({ onHide }) {
         <Button variant="outline-danger" onClick={onHide}>
           Cancel
         </Button>
-        {Object.entries(errorMessage).map(([k, v], i) => (
+        {/* {Object.entries(errorMessage).map(([k, v], i) => (
           <div key={i}>
             {k}: {v}
           </div>
-        ))}
+        ))} */}
       </Modal.Footer>
     </Modal.Body>
   );

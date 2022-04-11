@@ -9,18 +9,13 @@ import {
   Container,
 } from "react-bootstrap";
 import { HOLDING_TYPE } from "../utils/constants";
-import { removeCookie } from "../utils/common";
 import { useNavigate } from "react-router-dom";
 import styles from "./header.module.css";
 import "./header.css";
+import { logout } from "../utils/common";
 
-function Header({ type, setType, setUserInfo, username, setExpanded }) {
+function Header({ type, setType, setExpanded, timerId }) {
   const navigate = useNavigate();
-  const logout = () => {
-    removeCookie("userInfo");
-    setUserInfo({ timerId: 0 });
-    navigate("/login");
-  };
 
   const handleSelect = (eventKey, event) => {
     setExpanded({ open: {} });
@@ -65,8 +60,12 @@ function Header({ type, setType, setUserInfo, username, setExpanded }) {
                 Search
               </Button>
             </Form>
-            <Nav onSelect={(eventKey) => logout()}>
-              <NavDropdown title={username} id="navbarScrollingDropdown">
+            <Nav onSelect={(eventKey) => logout(navigate, timerId)}>
+              <NavDropdown
+                className={styles.username}
+                title={localStorage.getItem("username")}
+                id="navbarScrollingDropdown"
+              >
                 <NavDropdown.Item eventKey="logout">Logout</NavDropdown.Item>
               </NavDropdown>
             </Nav>

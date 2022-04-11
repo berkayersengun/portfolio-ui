@@ -1,8 +1,7 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 
 class Axios {
-  constructor(token) {
+  constructor() {
     // this.host = host;
     // this.host = "http://192.168.1.5:8001/";
     // this.host = process.env.REACT_APP_DJANGO_URL || "http://localhost:8000";
@@ -20,15 +19,33 @@ class Axios {
     // }
 
     this.instance = axios.create({ baseURL: this.host });
-    // console.log(this.instance);
-    // Tuesday, 22 March 2022 at 08:55:37
     this.instance.defaults.headers.get["Content-Type"] = "application/json";
     this.instance.defaults.headers.post["Content-Type"] = "application/json";
-    if (token) {
-      this.instance.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${token}`;
-    }
+    // allows sending httpOnly cookies back to backend
+    this.instance.defaults.withCredentials = true;
+
+    this.instance.interceptors.response.use(
+      function (response) {
+        // Any status code that lie within the range of 2xx cause this function to trigger
+        // Do something with response data
+        return response;
+      },
+      async function (error) {
+        // do not intercept if it is a login or refresh call (infinite loop since it will intercept the refresh call)
+        if (
+          error.response.status === 401 &&
+          !error.config.url.includes("refresh") &&
+          !error.config.url.includes("login")
+        ) {
+          await new Axios().refreshToken(); // refresh token
+          return axios(error.config); // send originial request again
+        }
+
+        // Any status codes that falls outside the range of 2xx cause this function to trigger
+        // Do something with response error
+        return Promise.reject(error);
+      }
+    );
   }
 
   get hostUrl() {
@@ -40,26 +57,20 @@ class Axios {
       username: username,
       password: password,
     });
+    return await this.instance.post("auth/login/", body);
+  }
 
-    // return this.instance.post("/token/", body);
-    const response = await this.instance.post("/token/", body);
-    this.instance.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${response.data.token}`;
-    // var inFifteenMinutes = new Date(new Date().getTime() + 15 * 60 * 1000);
-    // const userInfo = JSON.stringify({
-    //   username: username,
-    //   token: response.data.token,
-    // });
-    // Cookies.set("userInfo", userInfo, {
-    //   expires: 7,
-    // });
+  async logout() {
+    return await this.instance.post("auth/logout/");
+  }
+
+  async refreshToken() {
+    const body = JSON.stringify({});
+    const response = await this.instance.post("auth/token/refresh/", body);
     return response;
   }
 
   async fetchPortfolio() {
-    // const response = await axios.get("/v1/test");
-    // console.log(response);
     return this.instance.get(`/v1/portfolio/`);
   }
 

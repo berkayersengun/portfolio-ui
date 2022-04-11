@@ -12,7 +12,6 @@ import {
 import { getCurrencySymbol, getStyleForChange } from "../utils/common";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Axios from "../services/axios";
-import Cookies from "js-cookie";
 
 const CapitalField = ({
   editableCapital,
@@ -101,13 +100,7 @@ const FormCapital = ({
     </Form.Group>
   ));
 };
-const Overview = ({
-  type,
-  portfolio,
-  loadingState,
-  timerId,
-  setTimerState,
-}) => {
+const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
   const purchaseTotal = portfolio.overview.purchase[type];
   const capitalTotal = portfolio.overview.capital[type];
   const currentTotal = portfolio.overview.current[type];
@@ -159,13 +152,12 @@ const Overview = ({
   const handleSubmitCapital = async (event) => {
     event.preventDefault();
     setEditableCapital(!editableCapital);
-    const userInfo = JSON.parse(Cookies.get("userInfo"));
     try {
-      const response = await new Axios(userInfo.token).updateCapital(
-        userInfo.username,
+      await new Axios().updateCapital(
+        localStorage.getItem("username"),
         capitalValue
       );
-      setTimerState(Date.now());
+      setLoginInfo({ ...loginInfo, timerId: 0 });
     } catch (error) {
       // TODO add this error somewhere
       console.log(error.response.data);
@@ -179,7 +171,7 @@ const Overview = ({
   };
 
   const handleEditCapital = (event) => {
-    clearInterval(timerId);
+    clearInterval(loginInfo.timerId);
     setEditableCapital(!editableCapital);
   };
 
@@ -222,7 +214,7 @@ const Overview = ({
         <Col>
           <Type
             type={type}
-            loadingState={loadingState}
+            loadingState={loginInfo.loading}
             currency={currency}
             className={styles.typeMobile}
           ></Type>
@@ -239,7 +231,7 @@ const Overview = ({
           <Card>
             <Type
               type={type}
-              loadingState={loadingState}
+              loadingState={loginInfo.loading}
               currency={currency}
               className={styles.type}
             ></Type>
