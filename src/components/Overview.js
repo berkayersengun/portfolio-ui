@@ -58,7 +58,7 @@ const CapitalField = ({
     fields = Object.entries(capitalValue).map(([type, value], i) => (
       <Fragment key={i}>
         <Col style={{ textTransform: "capitalize" }}>
-          <span className="fw-bold">{type}</span>: {value}
+          <span className="fw-bold">{type}</span>: {value.toLocaleString()}
         </Col>
       </Fragment>
     ));
@@ -101,9 +101,9 @@ const FormCapital = ({
   ));
 };
 const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
-  const purchaseTotal = portfolio.overview.purchase[type];
-  const capitalTotal = portfolio.overview.capital[type];
-  const currentTotal = portfolio.overview.current[type];
+  const purchaseTotal = portfolio.overview.purchase[type].toLocaleString();
+  const capitalTotal = portfolio.overview.capital[type].toLocaleString();
+  const currentTotal = portfolio.overview.current[type].toLocaleString();
   const changeCapital = portfolio.overview.change_capital[type];
   const changePurchase = portfolio.overview.change_purchase[type];
   const changeDaily = portfolio.overview.change_daily[type];
@@ -190,7 +190,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
         <>
           <span className={styles.percent}>
             {percentStyle.minusPlus}
-            {change.percentage}%
+            {change.percentage.toLocaleString()}%
           </span>
           {percentStyle.arrow}
         </>
@@ -200,7 +200,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
     return (
       <Col className="mb-2" style={percentStyle.colorindicator}>
         {percentStyle.minusPlus}
-        {change.value}
+        {change.value.toLocaleString()}
         {percent}
       </Col>
     );

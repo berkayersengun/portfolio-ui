@@ -60,6 +60,11 @@ const Login = ({ setLoginInfo, loginInfo }) => {
     }
     return null;
   };
+
+  if (localStorage.getItem("username")) {
+    navigate("/", { replace: true });
+  }
+
   return (
     <>
       <Form>

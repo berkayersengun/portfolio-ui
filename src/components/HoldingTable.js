@@ -68,14 +68,14 @@ export default function HoldingTable({
         <td className={cellPadding}>{holding.name}</td>
         <td className={cellPadding}>
           {getCurrencySymbol(holding.currency)}
-          {Number(holding.price.purchase)}
+          {Number(holding.price.purchase).toLocaleString()}
         </td>
         <td
           className={cellPadding}
           style={getStyleForChange(holding.gain.percentage).colorindicator}
         >
           {getCurrencySymbol(holding.currency)}
-          {Number(holding.price.current)}
+          {Number(holding.price.current).toLocaleString()}
         </td>
         <td
           className={cellPadding}
@@ -84,7 +84,7 @@ export default function HoldingTable({
           }
         >
           {getCurrencySymbol(holding.currency)}
-          {holding.change_24H.value}
+          {holding.change_24H.value.toLocaleString()}
         </td>
         <td
           className={cellPadding}
@@ -92,25 +92,25 @@ export default function HoldingTable({
             getStyleForChange(holding.change_24H.percentage).colorindicator
           }
         >
-          {holding.change_24H.percentage}%
+          {holding.change_24H.percentage.toLocaleString()}%
         </td>
-        <td className={cellPadding}>{holding.quantity}</td>
+        <td className={cellPadding}>{holding.quantity.toLocaleString()}</td>
         <td
           className={cellPadding}
           style={getStyleForChange(holding.gain.percentage).colorindicator}
         >
           {getCurrencySymbol(holding.currency)}
-          {holding.gain.value}
+          {holding.gain.value.toLocaleString()}
         </td>
         <td
           className={cellPadding}
           style={getStyleForChange(holding.gain.percentage).colorindicator}
         >
-          {holding.gain.percentage}%
+          {holding.gain.percentage.toLocaleString()}%
         </td>
         <td className={cellPadding}>
           {getCurrencySymbol(holding.currency)}
-          {Number(holding.value.current)}
+          {Number(holding.value.current).toLocaleString()}
         </td>
       </tr>
     );

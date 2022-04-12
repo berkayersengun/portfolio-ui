@@ -52,8 +52,6 @@ export const logout = (navigate, timerId, setErrorModalState) => {
   new Axios()
     .logout()
     .then((response) => {
-      localStorage.clear();
-      clearInterval(timerId);
       if (setErrorModalState) {
         setErrorModalState({
           isError: false,
@@ -64,6 +62,8 @@ export const logout = (navigate, timerId, setErrorModalState) => {
     .catch((error) => {
       console.log(error);
     });
+  localStorage.clear();
+  clearInterval(timerId);
   navigate("/login");
 };
 
