@@ -85,6 +85,8 @@ function App() {
         },
       },
     },
+    currency: "EUR",
+    user: "",
   });
 
   const ErrorModal = ({ show, handleClose, errorMessage }) => (

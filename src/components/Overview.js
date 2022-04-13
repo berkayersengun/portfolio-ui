@@ -9,7 +9,12 @@ import {
   Form,
   Card,
 } from "react-bootstrap";
-import { getCurrencySymbol, getStyleForChange } from "../utils/common";
+import {
+  getCurrencySymbol,
+  getStyleForChange,
+  formatPrice,
+  formatPercent,
+} from "../utils/common";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Axios from "../services/axios";
 
@@ -17,11 +22,12 @@ const CapitalField = ({
   editableCapital,
   capitalValue,
   capitalTotal,
-  handleChangeCapital,
+  handleChangeNet,
   handleSubmitCapital,
   handleEditCapital,
   handleOnKeyPress,
   type,
+  currency,
 }) => {
   let fields = [];
   let button = (
@@ -48,7 +54,7 @@ const CapitalField = ({
       <Form className="mb-2" as={Row}>
         <FormCapital
           capitalValue={capitalValue}
-          handleChangeCapital={handleChangeCapital}
+          handleChangeNet={handleChangeNet}
           handleSubmitCapital={handleSubmitCapital}
           handleOnKeyPress={handleOnKeyPress}
         ></FormCapital>
@@ -58,7 +64,8 @@ const CapitalField = ({
     fields = Object.entries(capitalValue).map(([type, value], i) => (
       <Fragment key={i}>
         <Col style={{ textTransform: "capitalize" }}>
-          <span className="fw-bold">{type}</span>: {value.toLocaleString()}
+          <span className="fw-bold">{type}</span>:{" "}
+          {formatPrice(value, currency)}
         </Col>
       </Fragment>
     ));
@@ -77,11 +84,7 @@ const CapitalField = ({
   );
 };
 
-const FormCapital = ({
-  capitalValue,
-  handleChangeCapital,
-  handleOnKeyPress,
-}) => {
+const FormCapital = ({ capitalValue, handleChangeNet, handleOnKeyPress }) => {
   return Object.entries(capitalValue).map(([type, value], i) => (
     <Form.Group key={type} as={Row} className="align-items-center">
       <Form.Label column xl="4" style={{ textTransform: "capitalize" }}>
@@ -92,7 +95,7 @@ const FormCapital = ({
           size="sm"
           keyname={type}
           value={value}
-          onChange={handleChangeCapital}
+          onChange={handleChangeNet}
           onKeyPress={handleOnKeyPress}
           type="number"
         />
@@ -100,15 +103,20 @@ const FormCapital = ({
     </Form.Group>
   ));
 };
+
 const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
-  const purchaseTotal = portfolio.overview.purchase[type].toLocaleString();
-  const capitalTotal = portfolio.overview.capital[type].toLocaleString();
-  const currentTotal = portfolio.overview.current[type].toLocaleString();
-  const changeCapital = portfolio.overview.change_capital[type];
+  const currency = portfolio.currency;
+  const purchaseTotal = formatPrice(
+    portfolio.overview.purchase[type],
+    currency
+  );
+  const capitalTotal = formatPrice(portfolio.overview.capital[type], currency);
+  const currentTotal = formatPrice(portfolio.overview.current[type], currency);
+
+  const changeNet = portfolio.overview.change_capital[type];
   const changePurchase = portfolio.overview.change_purchase[type];
   const changeDaily = portfolio.overview.change_daily[type];
   const changeProps = getStyleForChange(changePurchase.percentage);
-  const currency = getCurrencySymbol(portfolio.currency);
   const [editableCapital, setEditableCapital] = useState(false);
   let { total: cap, ...capitalWithoutTotal } = portfolio.overview.capital;
   cap =
@@ -126,7 +134,6 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
             role="status"
             className={styles.spinner}
           ></Spinner>
-          {/* <span style={{ fontSize: "22px" }}>...</span> */}
         </div>
       </>
     );
@@ -138,11 +145,8 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
       type = <LoadingComponent></LoadingComponent>;
     }
     component = (
-      <div
-        className={className}
-        // style={{ fontSize: "35px", textTransform: "capitalize" }}
-      >
-        {type} ({currency})
+      <div className={className}>
+        {type} ({getCurrencySymbol(currency)})
       </div>
     );
 
@@ -175,7 +179,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
     setEditableCapital(!editableCapital);
   };
 
-  const handleChangeCapital = (event) => {
+  const handleChangeNet = (event) => {
     setCapitalValue({
       ...capitalValue,
       [event.target.attributes.keyname.value]: event.target.value,
@@ -189,8 +193,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
       percent = (
         <>
           <span className={styles.percent}>
-            {percentStyle.minusPlus}
-            {change.percentage.toLocaleString()}%
+            {formatPercent(change.percentage)}
           </span>
           {percentStyle.arrow}
         </>
@@ -199,8 +202,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
 
     return (
       <Col className="mb-2" style={percentStyle.colorindicator}>
-        {percentStyle.minusPlus}
-        {change.value.toLocaleString()}
+        {formatPrice(change.value, currency, true)}
         {percent}
       </Col>
     );
@@ -221,11 +223,11 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
         </Col>
       </Row>
       <Row className={`${styles.row1} d-none d-xl-flex align-items-center`}>
-        <Col as={Card} className=" py-2">
+        <Col xl={7} as={Card} className=" py-2">
           CHANGE
         </Col>
-        <Col as={Card} xl={4} className=" py-2">
-          VALUE ({currency})
+        <Col as={Card} xl={3} className="py-2">
+          VALUE
         </Col>
         <Col xl={2} className="py-1">
           <Card>
@@ -239,90 +241,98 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
         </Col>
       </Row>
       <Row>
-        <Col xs={12} xl={2} lg={4}>
-          <Row className={`align-self-center ${styles.row2} `}>
-            <Card body>
-              <Col className={`fst-italic `}>Daily</Col>
-              <Col className="mb-3">
-                <PriceView
-                  total={currentTotal}
-                  change={changeDaily}
-                ></PriceView>
-              </Col>
-            </Card>
+        <Col xl={7} lg={12}>
+          <Row>
+            <Col lg={4}>
+              <Row className={`align-self-center ${styles.row2} `}>
+                <Card>
+                  <Col className={`fst-italic `}>Daily</Col>
+                  <Col className="mb-3">
+                    <PriceView
+                      total={currentTotal}
+                      change={changeDaily}
+                    ></PriceView>
+                  </Col>
+                </Card>
+              </Row>
+            </Col>
+            <Col lg={4}>
+              <Row className={` ${styles.row2}`}>
+                <Card>
+                  <Col className={`fst-italic`}>Net</Col>
+                  <Col className="mb-3">
+                    <PriceView
+                      total={currentTotal}
+                      change={changeNet}
+                    ></PriceView>
+                  </Col>
+                </Card>
+              </Row>
+            </Col>
+            <Col lg={4}>
+              <Row className={` ${styles.row2}`}>
+                <Card>
+                  <Col className={`fst-italic`} xs={12}>
+                    Purchase
+                  </Col>
+                  <Col className="mb-3">
+                    <PriceView
+                      total={purchaseTotal}
+                      change={changePurchase}
+                    ></PriceView>
+                  </Col>
+                </Card>
+              </Row>
+            </Col>
           </Row>
         </Col>
-        <Col xs={12} xl={2} lg={4}>
-          <Row className={` ${styles.row2}`}>
-            <Card body>
-              <Col className={`fst-italic`}>Net</Col>
-              <Col className="mb-3">
-                <PriceView
-                  total={currentTotal}
-                  change={changeCapital}
-                ></PriceView>
-              </Col>
-            </Card>
+        <Col xl={3} lg={8}>
+          <Row>
+            <Col xl={6} lg={6}>
+              <Row className={` ${styles.row2}`}>
+                <Card>
+                  <Col className={`fst-italic`}>Current</Col>
+                  <Col style={changeProps.colorindicator} className="mb-4">
+                    {currentTotal}
+                  </Col>
+                </Card>
+              </Row>
+            </Col>
+            <Col xl={6} lg={6}>
+              <Row className={` justify-content-center ${styles.row2}`}>
+                <Card>
+                  <Col className={`fst-italic`} xl={12}>
+                    Purchase
+                  </Col>
+                  <Col xl={12} lg={12} className="mb-4">
+                    {purchaseTotal}
+                  </Col>
+                </Card>
+              </Row>
+            </Col>
           </Row>
         </Col>
-        <Col xs={12} xl={2} lg={4}>
-          <Row className={` ${styles.row2}`}>
-            <Card body>
-              <Col className={`fst-italic`} xs={12}>
-                Purchase
-              </Col>
-              <Col className="mb-3">
-                <PriceView
-                  total={purchaseTotal}
-                  change={changePurchase}
-                ></PriceView>
-              </Col>
-            </Card>
+        <Col xl={2} lg={4}>
+          <Row>
+            <Col xl={12} lg={12}>
+              <Card>
+                <Row className={`justify-content-center ${styles.row2}`}>
+                  <Col className={`fst-italic`}>Capital</Col>
+                </Row>
+                <CapitalField
+                  capitalTotal={capitalTotal}
+                  editableCapital={editableCapital}
+                  capitalValue={capitalValue}
+                  handleChangeNet={handleChangeNet}
+                  handleEditCapital={handleEditCapital}
+                  handleSubmitCapital={handleSubmitCapital}
+                  handleOnKeyPress={handleOnKeyPress}
+                  type={type}
+                  currency={portfolio.currency}
+                ></CapitalField>
+              </Card>
+            </Col>
           </Row>
-        </Col>
-        <Col xs={12} xl={2} lg={4}>
-          <Row className={` ${styles.row2}`}>
-            <Card body>
-              <Col className={`fst-italic`}>Current</Col>
-              <Col style={changeProps.colorindicator} className="mb-4">
-                {currentTotal} {changeProps.arrow}
-              </Col>
-            </Card>
-          </Row>
-        </Col>
-        <Col xs={12} xl={2} lg={4}>
-          <Row className={` justify-content-center ${styles.row2}`}>
-            <Card body>
-              <Col className={`fst-italic`} xl={12}>
-                Purchase
-              </Col>
-              <Col xl={12} lg={12} className="mb-4">
-                {purchaseTotal}
-              </Col>
-            </Card>
-          </Row>
-        </Col>
-        <Col xs={12} xl={2} lg={4}>
-          <Card body>
-            <Row className={`justify-content-center ${styles.row2}`}>
-              <Col className={`fst-italic`}>Capital</Col>
-            </Row>
-            {/* <Col xs={7} className="mb-2"> */}
-            {/* <span style={{ marginLeft: "15px" }}> */}
-            {/* {dashIfEmpty(` ${capitalTotal}`)} */}
-            {/* </span> */}
-            <CapitalField
-              capitalTotal={capitalTotal}
-              editableCapital={editableCapital}
-              capitalValue={capitalValue}
-              handleChangeCapital={handleChangeCapital}
-              handleEditCapital={handleEditCapital}
-              handleSubmitCapital={handleSubmitCapital}
-              handleOnKeyPress={handleOnKeyPress}
-              type={type}
-            ></CapitalField>
-            {/* </Col> */}
-          </Card>
         </Col>
       </Row>
     </Container>

@@ -4,7 +4,12 @@ import HoldingModal from "./HoldingModal";
 import { CURRENCY } from "../utils/constants";
 import styles from "./holdingTable.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getCurrencySymbol, getStyleForChange } from "../utils/common";
+import {
+  getStyleForChange,
+  formatPrice,
+  formatPercent,
+  formatQuantity,
+} from "../utils/common";
 
 // nfn: named function
 
@@ -67,15 +72,13 @@ export default function HoldingTable({
         <td className={cellPadding}>{holding.exchange}</td>
         <td className={cellPadding}>{holding.name}</td>
         <td className={cellPadding}>
-          {getCurrencySymbol(holding.currency)}
-          {Number(holding.price.purchase).toLocaleString()}
+          {formatPrice(holding.price.purchase, holding.currency)}
         </td>
         <td
           className={cellPadding}
           style={getStyleForChange(holding.gain.percentage).colorindicator}
         >
-          {getCurrencySymbol(holding.currency)}
-          {Number(holding.price.current).toLocaleString()}
+          {formatPrice(holding.price.current, holding.currency)}
         </td>
         <td
           className={cellPadding}
@@ -83,8 +86,7 @@ export default function HoldingTable({
             getStyleForChange(holding.change_24H.percentage).colorindicator
           }
         >
-          {getCurrencySymbol(holding.currency)}
-          {holding.change_24H.value.toLocaleString()}
+          {formatPrice(holding.change_24H.value, holding.currency, true)}
         </td>
         <td
           className={cellPadding}
@@ -92,25 +94,23 @@ export default function HoldingTable({
             getStyleForChange(holding.change_24H.percentage).colorindicator
           }
         >
-          {holding.change_24H.percentage.toLocaleString()}%
+          {formatPercent(holding.change_24H.percentage)}
         </td>
-        <td className={cellPadding}>{holding.quantity.toLocaleString()}</td>
+        <td className={cellPadding}>{formatQuantity(holding.quantity)}</td>
         <td
           className={cellPadding}
           style={getStyleForChange(holding.gain.percentage).colorindicator}
         >
-          {getCurrencySymbol(holding.currency)}
-          {holding.gain.value.toLocaleString()}
+          {formatPrice(holding.gain.value, holding.currency, true)}
         </td>
         <td
           className={cellPadding}
           style={getStyleForChange(holding.gain.percentage).colorindicator}
         >
-          {holding.gain.percentage.toLocaleString()}%
+          {formatPercent(holding.gain.percentage)}
         </td>
         <td className={cellPadding}>
-          {getCurrencySymbol(holding.currency)}
-          {Number(holding.value.current).toLocaleString()}
+          {formatPrice(holding.value.current, holding.currency)}
         </td>
       </tr>
     );

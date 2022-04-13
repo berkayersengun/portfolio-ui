@@ -8,6 +8,37 @@ const between = (x, min, max) => {
   return x >= min && x <= max;
 };
 
+export const formatPrice = (number, currency, signDisplay, locale) => {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currency,
+    signDisplay: signDisplay ? "exceptZero" : "auto",
+    // maximumFractionDigits: 6,
+    // minimumFractionDigits: 2,
+    // roundingIncrement: 5,
+    // minimumIntegerDigits: 2,
+    // trailingZeroDisplay: "stripIfInteger",
+    // maximumFractionDigits: 6,
+    // roundingMode: "halfCeil",
+    maximumSignificantDigits: 8,
+    // minimumSignificantDigits: 2,
+  }).format(number);
+};
+
+export const formatQuantity = (number, locale) => {
+  return new Intl.NumberFormat(locale, {
+    maximumSignificantDigits: 6,
+  }).format(number);
+};
+
+export const formatPercent = (number, locale) => {
+  return new Intl.NumberFormat(locale, {
+    style: "percent",
+    signDisplay: "exceptZero",
+    minimumFractionDigits: 2,
+  }).format(number / 100);
+};
+
 export const round = (number) => {
   let decimalPoint;
 
@@ -49,19 +80,13 @@ export const getStyleForChange = (percentage) => {
 };
 
 export const logout = (navigate, timerId, setErrorModalState) => {
-  new Axios()
-    .logout()
-    .then((response) => {
-      if (setErrorModalState) {
-        setErrorModalState({
-          isError: false,
-          message: "",
-        });
-      }
-    })
-    .catch((error) => {
-      console.log(error);
+  new Axios().logout();
+  if (setErrorModalState) {
+    setErrorModalState({
+      isError: false,
+      message: "",
     });
+  }
   localStorage.clear();
   clearInterval(timerId);
   navigate("/login");
