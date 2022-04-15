@@ -123,10 +123,11 @@ function App() {
   };
 
   useEffect(() => {
-    if (
-      (loginInfo.timerId === -1 || loginInfo.timerId === 0) &&
-      localStorage.getItem("username")
-    ) {
+    const username = localStorage.getItem("username");
+    if (!username) {
+      navigate("/login", { replace: true });
+    }
+    if ((loginInfo.timerId === -1 || loginInfo.timerId === 0) && username) {
       fetchPort().then((response) => {
         let intervalId = setInterval(fetchPort, minToMillisec(2));
         setLoginInfo({

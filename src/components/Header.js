@@ -63,7 +63,7 @@ function Header({ type, setType, setExpanded, timerId }) {
             <Nav onSelect={(eventKey) => logout(navigate, timerId)}>
               <NavDropdown
                 className={styles.username}
-                title={localStorage.getItem("username")}
+                title={localStorage.getItem("username") || "Anonymous"}
                 id="navbarScrollingDropdown"
               >
                 <NavDropdown.Item eventKey="logout">Logout</NavDropdown.Item>
