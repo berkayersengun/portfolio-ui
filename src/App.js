@@ -18,6 +18,9 @@ function App() {
     isError: false,
     message: "",
   });
+  // timerId
+  // timerId: -1 -> initial state, before any user logged in
+  // timerId: 0 -> to refresh timer, after user logged in
   const [loginInfo, setLoginInfo] = useState({
     timerId: -1,
     loading: true,
@@ -89,7 +92,12 @@ function App() {
     user: "",
   });
 
-  const ErrorModal = ({ show, handleClose, errorMessage }) => (
+  const ErrorModal = ({
+    show,
+    handleClose,
+    handleCloseLogout,
+    errorMessage,
+  }) => (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
         <Modal.Title>Connection Lost</Modal.Title>
@@ -98,6 +106,9 @@ function App() {
       <Modal.Footer>
         <Button variant="warning" onClick={handleClose}>
           Close
+        </Button>
+        <Button variant="danger" onClick={handleCloseLogout}>
+          Logout
         </Button>
       </Modal.Footer>
     </Modal>
@@ -118,8 +129,16 @@ function App() {
         isError: true,
         message: message,
       });
-      console.log(message);
+      console.log(error);
     }
+  };
+
+  const startInterval = () => {
+    let intervalId = setInterval(fetchPort, minToMillisec(2));
+    setLoginInfo({
+      timerId: intervalId,
+      loading: false,
+    });
   };
 
   useEffect(() => {
@@ -128,13 +147,7 @@ function App() {
       navigate("/login", { replace: true });
     }
     if ((loginInfo.timerId === -1 || loginInfo.timerId === 0) && username) {
-      fetchPort().then((response) => {
-        let intervalId = setInterval(fetchPort, minToMillisec(2));
-        setLoginInfo({
-          timerId: intervalId,
-          loading: false,
-        });
-      });
+      fetchPort().then(() => startInterval());
     }
     return () => {
       if (loginInfo.timerId !== 0) {
@@ -162,6 +175,14 @@ function App() {
     }
   }, [type, portfolio.holdings_data]);
 
+  const handleClose = (setLoginInfo, loginInfo, setErrorModalState) => () => {
+    setErrorModalState({
+      isError: false,
+      message: "",
+    });
+    setLoginInfo({ ...loginInfo, timerId: 0 });
+  };
+
   const Main = () => {
     return (
       <>
@@ -186,7 +207,8 @@ function App() {
         ></HoldingTable>
         <ErrorModal
           show={errorModalState.isError}
-          handleClose={() =>
+          handleClose={handleClose(setLoginInfo, loginInfo, setErrorModalState)} //retry in case connection lost temporarly
+          handleCloseLogout={() =>
             logout(navigate, loginInfo.timerId, setErrorModalState)
           }
           errorMessage={errorModalState.message}
