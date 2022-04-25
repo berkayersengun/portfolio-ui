@@ -116,7 +116,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
   const changeNet = portfolio.overview.change_capital[type];
   const changePurchase = portfolio.overview.change_purchase[type];
   const changeDaily = portfolio.overview.change_daily[type];
-  const changeProps = getStyleForChange(changePurchase.percentage);
+  const changeProps = getStyleForChange(changeNet.percentage);
   const [editableCapital, setEditableCapital] = useState(false);
   let { total: cap, ...capitalWithoutTotal } = portfolio.overview.capital;
   cap =

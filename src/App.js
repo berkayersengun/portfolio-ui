@@ -121,7 +121,14 @@ function App() {
     } catch (error) {
       let message = "";
       if (error.response && error.response.data) {
-        message = JSON.stringify(error.response.data);
+        const errorData = error.response.data;
+        if (
+          errorData.refresh &&
+          errorData.refresh[0] === "This field may not be null."
+        ) {
+          logout(navigate, loginInfo.timerId, setErrorModalState);
+        }
+        message = JSON.stringify(errorData);
       } else {
         message = error.message;
       }
@@ -129,7 +136,7 @@ function App() {
         isError: true,
         message: message,
       });
-      console.log(error);
+      console.log(message);
     }
   };
 
