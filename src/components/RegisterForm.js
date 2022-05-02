@@ -202,11 +202,11 @@ function RegisterForm({ onHide }) {
         </Row>
       </Form>
       <Modal.Footer>
-        <Button type="submit" className="me-3" onClick={handleSubmit}>
-          Register
-        </Button>
         <Button variant="outline-danger" onClick={onHide}>
           Cancel
+        </Button>
+        <Button type="submit" className="me-3" onClick={handleSubmit}>
+          Register
         </Button>
         {/* {Object.entries(errorMessage).map(([k, v], i) => (
           <div key={i}>

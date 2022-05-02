@@ -90,16 +90,20 @@ const Login = ({ setLoginInfo, loginInfo }) => {
         <Form.Group className="mb-3" controlId="formBasicCheckbox">
           <Form.Check type="checkbox" label="Remember me" />
         </Form.Group>
-        <Button variant="primary" type="submit" onClick={handleSubmit}>
-          Login
-        </Button>
         <Button
           variant="outline-success"
           // type="submit"
           onClick={() => setShowRegister(true)}
-          className="ms-2"
         >
           Register
+        </Button>
+        <Button
+          className="ms-2"
+          variant="primary"
+          type="submit"
+          onClick={handleSubmit}
+        >
+          Login
         </Button>
       </Form>
       <AlertMessage></AlertMessage>

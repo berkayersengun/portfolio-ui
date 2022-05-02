@@ -2,6 +2,16 @@
   cursor: pointer;
 }
 
+.sorticon {
+  padding-left: 10px;
+}
+.sortbutton {
+  width: 100%;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center;
+}
+
 .entities td {
   /* padding-left: 20px;
   padding-bottom: 20px;

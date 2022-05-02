@@ -328,7 +328,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
                   handleSubmitCapital={handleSubmitCapital}
                   handleOnKeyPress={handleOnKeyPress}
                   type={type}
-                  currency={portfolio.currency}
+                  currency={currency}
                 ></CapitalField>
               </Card>
             </Col>

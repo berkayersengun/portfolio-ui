@@ -1,4 +1,4 @@
-import { CURRENCY } from "../utils/constants";
+import { CURRENCY, SORT_DIRECTION } from "../utils/constants";
 import Axios from "../services/axios";
 
 export const getCurrencySymbol = (currency = "EUR") =>
@@ -100,3 +100,22 @@ function waitForTimeout(seconds) {
     }, seconds * 1000);
   });
 }
+
+export const getValueFromNestedObject = (object, keys) =>
+  keys.reduce((previousValue, key) => previousValue[key], object);
+
+export const sort = (data, keys, direction) => {
+  let sorted = [...data];
+  sorted.sort((a, b) => {
+    a = getValueFromNestedObject(a, keys);
+    b = getValueFromNestedObject(b, keys);
+    if (a < b) {
+      return direction === SORT_DIRECTION.ASC ? -1 : 1;
+    }
+    if (b < a) {
+      return direction === SORT_DIRECTION.ASC ? 1 : -1;
+    }
+    return 0;
+  });
+  return sorted;
+};

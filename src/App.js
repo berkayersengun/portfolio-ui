@@ -3,8 +3,8 @@ import Header from "./components/Header";
 import HoldingTable from "./components/HoldingTable";
 import Overview from "./components/Overview";
 import React, { useState, useEffect } from "react";
-import { HOLDING_TYPE } from "./utils/constants";
-import { minToMillisec, logout } from "./utils/common";
+import { HOLDING_TYPE, SORT_DIRECTION, PORT_INITIAL } from "./utils/constants";
+import { minToMillisec, logout, sort } from "./utils/common";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Login from "./components/Login";
 import Axios from "./services/axios";
@@ -13,7 +13,7 @@ import { Modal, Button } from "react-bootstrap";
 function App() {
   const navigate = useNavigate();
   const [type, setType] = useState(HOLDING_TYPE.TOTAL);
-  const [holdingsData, setholdingsData] = useState([]);
+  const [holdingsData, setHoldingsData] = useState([]);
   const [errorModalState, setErrorModalState] = useState({
     isError: false,
     message: "",
@@ -27,69 +27,13 @@ function App() {
   });
   const [showAddModal, setShowAddModal] = useState(false);
   const [expanded, setExpanded] = useState({ open: {} });
-  const [portfolio, setPortfolio] = useState({
-    holdings_data: [],
-    overview: {
-      current: {
-        crypto: 0,
-        stock: 0,
-        total: 0,
-      },
-      capital: {
-        crypto: 0,
-        stock: 0,
-        total: 0,
-      },
-      purchase: {
-        crypto: 0,
-        stock: 0,
-        total: 0,
-      },
-      change_purchase: {
-        crypto: {
-          value: 0,
-          percentage: 0,
-        },
-        stock: {
-          value: 0,
-          percentage: 0,
-        },
-        total: {
-          value: 0,
-          percentage: 0,
-        },
-      },
-      change_capital: {
-        crypto: {
-          value: 0,
-          percentage: 0,
-        },
-        stock: {
-          value: 0,
-          percentage: 0,
-        },
-        total: {
-          value: 0,
-          percentage: 0,
-        },
-      },
-      change_daily: {
-        crypto: {
-          value: 0,
-          percentage: 0,
-        },
-        stock: {
-          value: 0,
-          percentage: 0,
-        },
-        total: {
-          value: 0,
-          percentage: 0,
-        },
-      },
+  const [portfolio, setPortfolio] = useState(PORT_INITIAL);
+  const [sortConfig, setSortConfig] = useState({
+    direction: SORT_DIRECTION.DESC,
+    column: {
+      key: ["average", "value", "current"],
+      label: "Holdings Value",
     },
-    currency: "EUR",
-    user: "",
   });
 
   const ErrorModal = ({
@@ -170,17 +114,17 @@ function App() {
   }, [showAddModal, errorModalState.isError]);
 
   useEffect(() => {
+    let holdings = [];
     if (type !== HOLDING_TYPE.TOTAL) {
-      setholdingsData(
-        portfolio.holdings_data.filter((holding) => holding.type === type)
+      holdings = portfolio.holdings_data.filter(
+        (holding) => holding.type === type
       );
     } else {
-      const holdings = Object.values(portfolio.holdings_data).flatMap(
-        (holding) => holding
-      );
-      setholdingsData(holdings);
+      holdings = portfolio.holdings_data;
     }
-  }, [type, portfolio.holdings_data]);
+    const sorted = sort(holdings, sortConfig.column.key, sortConfig.direction);
+    setHoldingsData(sorted);
+  }, [type, portfolio.holdings_data, sortConfig]);
 
   const handleClose = (setLoginInfo, loginInfo, setErrorModalState) => () => {
     setErrorModalState({
@@ -211,6 +155,8 @@ function App() {
           setExpanded={setExpanded}
           loginInfo={loginInfo}
           setLoginInfo={setLoginInfo}
+          setSortConfig={setSortConfig}
+          sortConfig={sortConfig}
         ></HoldingTable>
         <ErrorModal
           show={errorModalState.isError}

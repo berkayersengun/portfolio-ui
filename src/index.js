@@ -15,6 +15,7 @@ import {
   faCaretRight,
   faPenToSquare,
   faCheck,
+  faCaretUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
@@ -25,6 +26,7 @@ library.add(
   faChevronDown,
   faCaretLeft,
   faCaretDown,
+  faCaretUp,
   faCaretRight,
   faPenToSquare,
   faCheck
