@@ -201,14 +201,58 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
     }
 
     return (
-      <Col className="mb-2" style={percentStyle.colorindicator}>
-        {formatPrice(change.value, currency, true)}
-        {percent}
-      </Col>
+      <>
+        <Col style={percentStyle.colorindicator} className={styles.colPrice}>
+          {formatPrice(change.value, currency, true)}
+        </Col>
+        <Col style={percentStyle.colorindicator} className={styles.colPercent}>
+          {percent}
+        </Col>
+      </>
     );
   };
 
   const dashIfEmpty = (value) => (value !== 0 ? value : "-");
+
+  const CommonRow = ({ name }) => {
+    return (
+      <Row className={`fst-italic`}>
+        <span>{name}</span>
+      </Row>
+    );
+  };
+
+  const Change = ({ name, total, change }) => {
+    return (
+      <Col
+        as={Card}
+        className={`${styles.card} ${styles.row2} justify-content-center `}
+        lg={4}
+      >
+        <CommonRow name={name}></CommonRow>
+        <Row>
+          <PriceView total={total} change={change}></PriceView>
+        </Row>
+      </Col>
+    );
+  };
+
+  const Value = ({ name, value }) => {
+    return (
+      <Col
+        as={Card}
+        className={`${styles.card} justify-content-center ${styles.row2}`}
+      >
+        <CommonRow name={name}></CommonRow>
+        <Row
+          style={changeProps.colorindicator}
+          className="justify-content-center"
+        >
+          {value}
+        </Row>
+      </Col>
+    );
+  };
 
   return (
     <Container fluid className="my-2 text-center">
@@ -223,7 +267,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
         </Col>
       </Row>
       <Row className={`${styles.row1} d-none d-xl-flex align-items-center`}>
-        <Col xl={7} as={Card} className=" py-2">
+        <Col xl={7} as={Card} className="py-2">
           CHANGE
         </Col>
         <Col as={Card} xl={3} className="py-2">
@@ -243,79 +287,29 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
       <Row>
         <Col xl={7} lg={12}>
           <Row>
-            <Col lg={4}>
-              <Row className={`align-self-center ${styles.row2} `}>
-                <Card>
-                  <Col className={`fst-italic `}>Daily</Col>
-                  <Col className="mb-3">
-                    <PriceView
-                      total={currentTotal}
-                      change={changeDaily}
-                    ></PriceView>
-                  </Col>
-                </Card>
-              </Row>
-            </Col>
-            <Col lg={4}>
-              <Row className={` ${styles.row2}`}>
-                <Card>
-                  <Col className={`fst-italic`}>Net</Col>
-                  <Col className="mb-3">
-                    <PriceView
-                      total={currentTotal}
-                      change={changeNet}
-                    ></PriceView>
-                  </Col>
-                </Card>
-              </Row>
-            </Col>
-            <Col lg={4}>
-              <Row className={` ${styles.row2}`}>
-                <Card>
-                  <Col className={`fst-italic`} xs={12}>
-                    Purchase
-                  </Col>
-                  <Col className="mb-3">
-                    <PriceView
-                      total={purchaseTotal}
-                      change={changePurchase}
-                    ></PriceView>
-                  </Col>
-                </Card>
-              </Row>
-            </Col>
+            <Change
+              name="Daily"
+              total={currentTotal}
+              change={changeDaily}
+            ></Change>
+            <Change name="Net" total={currentTotal} change={changeNet}></Change>
+            <Change
+              name="Purchase"
+              total={purchaseTotal}
+              change={changePurchase}
+            ></Change>
           </Row>
         </Col>
         <Col xl={3} lg={8}>
           <Row>
-            <Col xl={6} lg={6}>
-              <Row className={` ${styles.row2}`}>
-                <Card>
-                  <Col className={`fst-italic`}>Current</Col>
-                  <Col style={changeProps.colorindicator} className="mb-4">
-                    {currentTotal}
-                  </Col>
-                </Card>
-              </Row>
-            </Col>
-            <Col xl={6} lg={6}>
-              <Row className={` justify-content-center ${styles.row2}`}>
-                <Card>
-                  <Col className={`fst-italic`} xl={12}>
-                    Purchase
-                  </Col>
-                  <Col xl={12} lg={12} className="mb-4">
-                    {purchaseTotal}
-                  </Col>
-                </Card>
-              </Row>
-            </Col>
+            <Value name="Current" value={currentTotal}></Value>
+            <Value name="Purchase" value={purchaseTotal}></Value>
           </Row>
         </Col>
         <Col xl={2} lg={4}>
           <Row>
             <Col xl={12} lg={12}>
-              <Card>
+              <Card className={styles.card}>
                 <Row className={`justify-content-center ${styles.row2}`}>
                   <Col className={`fst-italic`}>Capital</Col>
                 </Row>

@@ -147,6 +147,45 @@ const EachRow = ({ row: holding, rowNo, isEntity, expanded, setExpanded }) => {
   );
 };
 
+const SortIcon = ({ column, sortConfig }) => {
+  if (column.label === sortConfig.column.label) {
+    if (sortConfig.direction === SORT_DIRECTION.DESC) {
+      return <FontAwesomeIcon className={styles.sorticon} icon="caret-down" />;
+    } else if (sortConfig.direction === SORT_DIRECTION.ASC) {
+      return <FontAwesomeIcon className={styles.sorticon} icon="caret-up" />;
+    } else {
+      return null;
+    }
+  }
+  return null;
+};
+
+const ColumnButton = ({ column, sortConfig }) => (
+  <Button variant="outline-secondary" size="sm" className={styles.sortbutton}>
+    {column.label}
+    <SortIcon column={column} sortConfig={sortConfig} />
+  </Button>
+);
+
+const Columns = ({ columns, sortConfig, handleSort }) => {
+  return columns.map((column) => {
+    return (
+      <th
+        colSpan={column.label === "#" ? 2 : 1}
+        key={`column-${column.label}`}
+        onClick={handleSort(column, sortConfig)}
+        className={`text-center`}
+      >
+        {column.label === "#" ? (
+          column.label
+        ) : (
+          <ColumnButton column={column} sortConfig={sortConfig}></ColumnButton>
+        )}
+      </th>
+    );
+  });
+};
+
 // nfn: named function
 export default function HoldingTable({
   holdingsData,
@@ -167,55 +206,22 @@ export default function HoldingTable({
     clearInterval(loginInfo.timerId);
   };
 
-  const handleSort = (column) => (event) => {
-    let direction = "";
-    if (sortConfig.direction === SORT_DIRECTION.ASC) {
-      direction = SORT_DIRECTION.DESC;
-    } else {
+  const handleSort = (column, sortConfig) => (event) => {
+    let direction;
+    if (sortConfig.direction === SORT_DIRECTION.DESC) {
       direction = SORT_DIRECTION.ASC;
+    } else if (sortConfig.direction === SORT_DIRECTION.ASC) {
+      direction = null;
+      column = {
+        key: ["average", "value", "current"],
+        label: "Holdings Value",
+      };
+    } else {
+      direction = SORT_DIRECTION.DESC;
     }
     setSortConfig({
       direction: direction,
       column: column,
-    });
-  };
-
-  const SortIcon = ({ direction }) => {
-    if (direction === SORT_DIRECTION.DESC) {
-      return <FontAwesomeIcon className={styles.sorticon} icon="caret-down" />;
-    }
-    return <FontAwesomeIcon className={styles.sorticon} icon="caret-up" />;
-  };
-
-  const Columns = ({ columns }) => {
-    const ColumnButton = ({ column }) => (
-      <Button
-        variant="outline-secondary"
-        size="sm"
-        className={styles.sortbutton}
-      >
-        {column.label}
-        {column.label === sortConfig.column.label ? (
-          <SortIcon direction={sortConfig.direction} />
-        ) : null}
-      </Button>
-    );
-
-    return columns.map((column) => {
-      return (
-        <th
-          colSpan={column.label === "#" ? 2 : 1}
-          key={`column-${column.label}`}
-          onClick={handleSort(column)}
-          className={`text-center`}
-        >
-          {column.label === "#" ? (
-            column.label
-          ) : (
-            <ColumnButton column={column}></ColumnButton>
-          )}
-        </th>
-      );
     });
   };
 
@@ -231,7 +237,11 @@ export default function HoldingTable({
       >
         <thead>
           <tr>
-            <Columns columns={COLUMNS}></Columns>
+            <Columns
+              columns={COLUMNS}
+              sortConfig={sortConfig}
+              handleSort={handleSort}
+            ></Columns>
           </tr>
         </thead>
         <tbody>

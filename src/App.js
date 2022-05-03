@@ -29,7 +29,6 @@ function App() {
   const [expanded, setExpanded] = useState({ open: {} });
   const [portfolio, setPortfolio] = useState(PORT_INITIAL);
   const [sortConfig, setSortConfig] = useState({
-    direction: SORT_DIRECTION.DESC,
     column: {
       key: ["average", "value", "current"],
       label: "Holdings Value",
