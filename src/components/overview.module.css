@@ -1,30 +1,14 @@
 .row1 {
-  /* padding: 0 15rem; */
   font-size: x-large;
   font-weight: bold;
 }
 
 .row2 {
-  /* margin: 0 1rem; */
   font-size: 30px;
-}
-
-.col {
-  /* padding: 0 3rem; */
-}
-
-.spinnerWrapper {
-  /* display: flex; */
-}
-
-.spinner {
-  /* margin-left: 20px; */
 }
 
 .percent {
   font-size: x-large;
-  /* margin-left: 15px; */
-  text-align: left;
 }
 
 .capitalTotal {
@@ -32,9 +16,9 @@
 }
 
 .type {
-  font-size: 35px;
   text-transform: capitalize;
 }
+
 .typeMobile {
   font-size: 25px;
   text-transform: capitalize;
@@ -42,12 +26,20 @@
 
 .colPrice {
   text-align: right;
+  white-space: nowrap;
 }
 
 .colPercent {
   text-align: left;
+  white-space: nowrap;
+  padding-left: 2% !important;
 }
 
-.card {
-  height: 130px;
+.rowDown {
+  height: 100%;
+}
+
+.capitalField {
+  text-transform: capitalize;
+  white-space: nowrap;
 }

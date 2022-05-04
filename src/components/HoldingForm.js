@@ -235,7 +235,11 @@ function HoldingForm({ onHide }) {
           <Form.Control
             type="datetime-local"
             placeholder="Date"
-            defaultValue={new Date().toISOString().substring(0, 16)}
+            defaultValue={new Date(
+              new Date().getTime() - new Date().getTimezoneOffset() * 60000
+            )
+              .toISOString()
+              .substring(0, 16)}
             keyname="date"
             onChange={handleSubmitAddHolding}
           />

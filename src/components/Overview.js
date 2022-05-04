@@ -65,7 +65,14 @@ const CapitalField = ({
   } else {
     fields = Object.entries(capitalValue).map(([type, value], i) => (
       <Fragment key={i}>
-        <Col style={{ textTransform: "capitalize" }}>
+        <Col
+          className={`${styles.capitalField} ${
+            i === 0 ? "text-end" : "text-start"
+          }`}
+          xl={6}
+          md={6}
+          xs={6}
+        >
           <span className="fw-bold">{type}</span>:{" "}
           {formatPrice(value, currency)}
         </Col>
@@ -76,7 +83,7 @@ const CapitalField = ({
   return (
     <Fragment>
       <Row>
-        <Col className="mb-2 fs-2">
+        <Col className="mb-1 fs-2">
           {capitalTotal}
           {button}
         </Col>
@@ -130,12 +137,8 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
   const LoadingComponent = () => {
     return (
       <>
-        <div className={styles.spinnerWrapper}>
-          <Spinner
-            animation="border"
-            role="status"
-            className={styles.spinner}
-          ></Spinner>
+        <div>
+          <Spinner animation="border" role="status"></Spinner>
         </div>
       </>
     );
@@ -194,20 +197,30 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
     if (total !== 0) {
       percent = (
         <>
-          <span className={styles.percent}>
+          <div className={styles.percent}>
             {formatPercent(change.percentage)}
-          </span>
-          {percentStyle.arrow}
+            {percentStyle.arrow}
+          </div>
         </>
       );
     }
 
     return (
       <>
-        <Col style={percentStyle.colorindicator} className={styles.colPrice}>
+        <Col
+          style={percentStyle.colorindicator}
+          className={styles.colPrice}
+          lg={7}
+          xs={7}
+        >
           {formatPrice(change.value, currency, true)}
         </Col>
-        <Col style={percentStyle.colorindicator} className={styles.colPercent}>
+        <Col
+          style={percentStyle.colorindicator}
+          className={styles.colPercent}
+          lg={5}
+          xs={5}
+        >
           {percent}
         </Col>
       </>
@@ -224,13 +237,9 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
 
   const Change = ({ name, total, change }) => {
     return (
-      <Col
-        as={Card}
-        className={`${styles.card} ${styles.row2} justify-content-center `}
-        lg={4}
-      >
+      <Col as={Card} className={`${styles.row2} justify-content-center`} lg={4}>
         <CommonRow name={name}></CommonRow>
-        <Row>
+        <Row className="align-items-baseline">
           <PriceView total={total} change={change}></PriceView>
         </Row>
       </Col>
@@ -239,10 +248,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
 
   const Value = ({ name, value }) => {
     return (
-      <Col
-        as={Card}
-        className={`${styles.card} justify-content-center ${styles.row2}`}
-      >
+      <Col as={Card} className={`${styles.row2} justify-content-center`}>
         <CommonRow name={name}></CommonRow>
         <Row
           style={changeProps.colorindicator}
@@ -256,8 +262,8 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
 
   return (
     <Container fluid className="my-2 text-center">
-      <Row className={`align-items-center d-flex d-sm-none`}>
-        <Col>
+      <Row className={`align-items-center d-flex d-xl-none`}>
+        <Col as={Card}>
           <Type
             type={type}
             loadingState={loginInfo.loading}
@@ -267,26 +273,24 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
         </Col>
       </Row>
       <Row className={`${styles.row1} d-none d-xl-flex align-items-center`}>
-        <Col xl={7} as={Card} className="py-2">
+        <Col xl={7} as={Card}>
           CHANGE
         </Col>
-        <Col as={Card} xl={3} className="py-2">
+        <Col as={Card} xl={3}>
           VALUE
         </Col>
-        <Col xl={2} className="py-1">
-          <Card>
-            <Type
-              type={type}
-              loadingState={loginInfo.loading}
-              currency={currency}
-              className={styles.type}
-            ></Type>
-          </Card>
+        <Col xl={2} as={Card}>
+          <Type
+            type={type}
+            loadingState={loginInfo.loading}
+            currency={currency}
+            className={styles.type}
+          ></Type>
         </Col>
       </Row>
       <Row>
         <Col xl={7} lg={12}>
-          <Row>
+          <Row className={styles.rowDown}>
             <Change
               name="Daily"
               total={currentTotal}
@@ -301,17 +305,14 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
           </Row>
         </Col>
         <Col xl={3} lg={8}>
-          <Row>
+          <Row className={styles.rowDown}>
             <Value name="Current" value={currentTotal}></Value>
             <Value name="Purchase" value={purchaseTotal}></Value>
           </Row>
         </Col>
         <Col xl={2} lg={4}>
-          <Row>
-            <Col
-              as={Card}
-              className={`${styles.card}  justify-content-center `}
-            >
+          <Row className={styles.rowDown}>
+            <Col as={Card} className={`justify-content-center`}>
               <CommonRow styles={styles.row2} name="Capital"></CommonRow>
               <CapitalField
                 capitalTotal={capitalTotal}
