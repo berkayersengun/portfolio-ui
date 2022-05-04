@@ -208,9 +208,15 @@ export default function HoldingTable({
 
   const handleSort = (column, sortConfig) => (event) => {
     let direction;
-    if (sortConfig.direction === SORT_DIRECTION.DESC) {
+    if (
+      (column === sortConfig.column && sortConfig.direction) ===
+      SORT_DIRECTION.DESC
+    ) {
       direction = SORT_DIRECTION.ASC;
-    } else if (sortConfig.direction === SORT_DIRECTION.ASC) {
+    } else if (
+      column === sortConfig.column &&
+      sortConfig.direction === SORT_DIRECTION.ASC
+    ) {
       direction = null;
       column = {
         key: ["average", "value", "current"],
@@ -219,6 +225,7 @@ export default function HoldingTable({
     } else {
       direction = SORT_DIRECTION.DESC;
     }
+
     setSortConfig({
       direction: direction,
       column: column,
