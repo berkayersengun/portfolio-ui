@@ -18,6 +18,8 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Axios from "../services/axios";
 
+const dashIfEmpty = (value) => (value !== 0 ? value : "-");
+
 const CapitalField = ({
   editableCapital,
   capitalValue,
@@ -212,11 +214,9 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
     );
   };
 
-  const dashIfEmpty = (value) => (value !== 0 ? value : "-");
-
-  const CommonRow = ({ name }) => {
+  const CommonRow = ({ name, styles = "" }) => {
     return (
-      <Row className={`fst-italic`}>
+      <Row className={`fst-italic ${styles}`}>
         <span>{name}</span>
       </Row>
     );
@@ -308,23 +308,22 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
         </Col>
         <Col xl={2} lg={4}>
           <Row>
-            <Col xl={12} lg={12}>
-              <Card className={styles.card}>
-                <Row className={`justify-content-center ${styles.row2}`}>
-                  <Col className={`fst-italic`}>Capital</Col>
-                </Row>
-                <CapitalField
-                  capitalTotal={capitalTotal}
-                  editableCapital={editableCapital}
-                  capitalValue={capitalValue}
-                  handleChangeNet={handleChangeNet}
-                  handleEditCapital={handleEditCapital}
-                  handleSubmitCapital={handleSubmitCapital}
-                  handleOnKeyPress={handleOnKeyPress}
-                  type={type}
-                  currency={currency}
-                ></CapitalField>
-              </Card>
+            <Col
+              as={Card}
+              className={`${styles.card}  justify-content-center `}
+            >
+              <CommonRow styles={styles.row2} name="Capital"></CommonRow>
+              <CapitalField
+                capitalTotal={capitalTotal}
+                editableCapital={editableCapital}
+                capitalValue={capitalValue}
+                handleChangeNet={handleChangeNet}
+                handleEditCapital={handleEditCapital}
+                handleSubmitCapital={handleSubmitCapital}
+                handleOnKeyPress={handleOnKeyPress}
+                type={type}
+                currency={currency}
+              ></CapitalField>
             </Col>
           </Row>
         </Col>
