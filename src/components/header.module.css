@@ -1,6 +1,6 @@
 .tab {
   max-height: 100px;
-  color: red;
+  /* color: red; */
 }
 
 .tab:hover {
@@ -9,4 +9,12 @@
 
 .username {
   text-transform: capitalize;
+}
+
+.button {
+  width: 70px;
+}
+
+.toggles {
+  padding-right: 1%;
 }

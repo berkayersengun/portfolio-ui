@@ -3,16 +3,25 @@ import Header from "./components/Header";
 import HoldingTable from "./components/HoldingTable";
 import Overview from "./components/Overview";
 import React, { useState, useEffect } from "react";
-import { HOLDING_TYPE, SORT_DIRECTION, PORT_INITIAL } from "./utils/constants";
+import {
+  HOLDING_TYPE,
+  PORT_INITIAL,
+  TAB,
+  HIST_PARAMS,
+} from "./utils/constants";
 import { minToMillisec, logout, sort } from "./utils/common";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Login from "./components/Login";
 import Axios from "./services/axios";
 import { Modal, Button } from "react-bootstrap";
+import Chart from "./components/Chart";
 
 function App() {
   const navigate = useNavigate();
   const [type, setType] = useState(HOLDING_TYPE.TOTAL);
+  const [page, setPage] = useState(TAB.LIST);
+  const [range, setRange] = useState(HIST_PARAMS["1Y"]);
+
   const [holdingsData, setHoldingsData] = useState([]);
   const [errorModalState, setErrorModalState] = useState({
     isError: false,
@@ -107,6 +116,22 @@ function App() {
   }, [loginInfo.timerId]);
 
   useEffect(() => {
+    switch (page) {
+      case TAB.LIST:
+        if (type === "all") {
+          setType(HOLDING_TYPE.TOTAL);
+        }
+        startInterval();
+        break;
+      case TAB.CHART:
+        clearInterval(loginInfo.timerId);
+        break;
+      default:
+        break;
+    }
+  }, [page]);
+
+  useEffect(() => {
     if (showAddModal || errorModalState.isError) {
       clearInterval(loginInfo.timerId);
     }
@@ -134,29 +159,47 @@ function App() {
   };
 
   const Main = () => {
+    let bodyComponent = {};
+    switch (page) {
+      case TAB.LIST:
+        bodyComponent = (
+          <>
+            <HoldingTable
+              {...{
+                holdingsData,
+                expanded,
+                setExpanded,
+                loginInfo,
+                setLoginInfo,
+                setSortConfig,
+                sortConfig,
+              }}
+            ></HoldingTable>
+          </>
+        );
+        break;
+      case TAB.CHART:
+        bodyComponent = <Chart {...{ type, setRange, range }}></Chart>;
+        break;
+      default:
+        break;
+    }
+
     return (
       <>
         <Header
-          type={type}
-          setType={setType}
-          setExpanded={setExpanded}
-          timerId={loginInfo.timerId}
+          {...{
+            type,
+            setType,
+            setExpanded,
+            timerId: loginInfo.timerId,
+            setPage,
+            page,
+          }}
         ></Header>
-        <Overview
-          type={type}
-          portfolio={portfolio}
-          loginInfo={loginInfo}
-          setLoginInfo={setLoginInfo}
-        ></Overview>
-        <HoldingTable
-          holdingsData={holdingsData}
-          expanded={expanded}
-          setExpanded={setExpanded}
-          loginInfo={loginInfo}
-          setLoginInfo={setLoginInfo}
-          setSortConfig={setSortConfig}
-          sortConfig={sortConfig}
-        ></HoldingTable>
+        <Overview {...{ type, portfolio, loginInfo, setLoginInfo }}></Overview>
+        {bodyComponent}
+
         <ErrorModal
           show={errorModalState.isError}
           handleClose={handleClose(setLoginInfo, loginInfo, setErrorModalState)} //retry in case connection lost temporarly

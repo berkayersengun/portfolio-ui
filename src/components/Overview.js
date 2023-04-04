@@ -17,6 +17,7 @@ import {
 } from "../utils/common";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Axios from "../services/axios";
+import { HOLDING_TYPE } from "../utils/constants";
 
 const dashIfEmpty = (value) => (value !== 0 ? value : "-");
 
@@ -114,6 +115,9 @@ const FormCapital = ({ capitalValue, handleChangeNet, handleOnKeyPress }) => {
 };
 
 const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
+  if (type === "all") {
+    type = HOLDING_TYPE.TOTAL;
+  }
   const currency = portfolio.currency;
   const purchaseTotal = formatPrice(
     portfolio.overview.purchase[type],

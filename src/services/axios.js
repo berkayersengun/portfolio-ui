@@ -1,4 +1,5 @@
 import axios from "axios";
+import { HIST_PARAMS } from "../utils/constants";
 
 class Axios {
   constructor() {
@@ -72,6 +73,13 @@ class Axios {
 
   async fetchPortfolio() {
     return this.instance.get(`/v1/portfolio/`);
+  }
+
+  async fetchHistory(history_params = HIST_PARAMS.MAX) {
+    const params = {
+      range: history_params,
+    };
+    return this.instance.get(`/v1/history/`, { params: params });
   }
 
   addHolding(body) {

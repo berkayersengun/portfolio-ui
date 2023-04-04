@@ -7,49 +7,92 @@ import {
   Form,
   FormControl,
   Container,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "react-bootstrap";
-import { HOLDING_TYPE } from "../utils/constants";
+import { HOLDING_TYPE, TAB } from "../utils/constants";
 import { useNavigate } from "react-router-dom";
 import styles from "./header.module.css";
 import "./header.css";
 import { logout } from "../utils/common";
 
-function Header({ type, setType, setExpanded, timerId }) {
+function Header({ type, setType, setExpanded, timerId, setPage, page }) {
   const navigate = useNavigate();
-
-  const handleSelect = (eventKey, event) => {
+  const handleChange = (val) => {
+    setType(val);
     setExpanded({ open: {} });
-    setType(eventKey);
   };
 
   return (
     <>
       <Navbar expand="lg">
         <Navbar.Brand>Portofino</Navbar.Brand>
+        <ToggleButtonGroup
+          className={styles.toggles}
+          type="radio"
+          value={type}
+          onChange={handleChange}
+          name="types"
+          size="md"
+        >
+          <ToggleButton
+            className={styles.button}
+            id="holdingTotal"
+            value={HOLDING_TYPE.TOTAL}
+            variant="outline-secondary"
+          >
+            Total
+          </ToggleButton>
+          <ToggleButton
+            className={styles.button}
+            id="holdingStock"
+            value={HOLDING_TYPE.STOCK}
+            variant="outline-secondary"
+          >
+            Stocks
+          </ToggleButton>
+          <ToggleButton
+            className={styles.button}
+            id="holdingCrypto"
+            value={HOLDING_TYPE.CRYPTO}
+            variant="outline-secondary"
+          >
+            Crypto
+          </ToggleButton>
+
+          {page === TAB.CHART ? (
+            <ToggleButton
+              className={styles.button}
+              id="holdingAll"
+              value={"all"}
+              variant="outline-secondary"
+            >
+              All
+            </ToggleButton>
+          ) : (
+            ""
+          )}
+        </ToggleButtonGroup>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll" className="justify-content-between">
           <Nav
             defaultActiveKey={HOLDING_TYPE.TOTAL}
-            onSelect={handleSelect}
+            onSelect={(selectedKey) => setPage(selectedKey)}
             className={`me-auto my-2 my-lg-0 `}
             // style={{ maxHeight: "200px" }}
             navbarScroll
-            variant="tabs"
-            activeKey={type}
+            variant="pills"
+            activeKey={page}
           >
-            <Nav.Link className={styles.tab} eventKey={HOLDING_TYPE.TOTAL}>
-              Total
+            <Nav.Link className={styles.tab} eventKey={TAB.LIST}>
+              List
             </Nav.Link>
-            <Nav.Link className={styles.tab} eventKey={HOLDING_TYPE.CRYPTO}>
-              Crypto
-            </Nav.Link>
-            <Nav.Link className={styles.tab} eventKey={HOLDING_TYPE.STOCK}>
-              Stocks
+            <Nav.Link className={styles.tab} eventKey={TAB.CHART}>
+              Chart
             </Nav.Link>
           </Nav>
           <Container fluid className="d-flex justify-content-end">
             <Form className="d-flex">
-              {/* <Navbar.Brand> {type.toUpperCase()}</Navbar.Brand> */}
               <FormControl
                 type="search"
                 placeholder="Search"

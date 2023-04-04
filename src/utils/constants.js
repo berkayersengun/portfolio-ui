@@ -4,6 +4,17 @@ export const HOLDING_TYPE = {
   TOTAL: "total",
 };
 
+export const CHART_COLORS = {
+  crypto: "rgb(53, 162, 235)",
+  stock: "rgb(255, 99, 132)",
+  total: "rgb(76, 175, 80)",
+};
+
+export const TAB = {
+  LIST: "list",
+  CHART: "chart",
+};
+
 export const CURRENCY = {
   EUR: {
     value: "EUR",
@@ -136,3 +147,49 @@ export const COLUMNS = [
     label: "Value",
   },
 ];
+
+export const HIST_PARAMS = {
+  "1D": "1d",
+  "1W": "1w",
+  "1M": "1m",
+  "6M": "6m",
+  YTD: "ytd",
+  "1Y": "1y",
+  "5Y": "5y",
+  MAX: "max",
+};
+
+export const HIST_PARAMS1 = {
+  "1D": {
+    range: "1d",
+    interval: "1m",
+  },
+  "5D": {
+    range: "5d",
+    interval: "15m",
+  },
+  "1MO": {
+    range: "1mo",
+    interval: "30m",
+  },
+  "6MO": {
+    range: "6mo",
+    interval: "1d",
+  },
+  YTD: {
+    range: "ytd",
+    interval: "1d",
+  },
+  "1Y": {
+    range: "1y",
+    interval: "1d",
+  },
+  "5Y": {
+    range: "5y",
+    interval: "1wk",
+  },
+  MAX: {
+    range: "max",
+    interval: "1wk",
+  },
+};
