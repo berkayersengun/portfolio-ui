@@ -8,16 +8,16 @@ function RegisterForm({ onHide }) {
   const [validated, setValidated] = useState(false);
   const [errorMessage, setErrorMessage] = useState({});
   const [user, setUser] = useState({
-    capital: { crypto: 0, stock: 0 },
+    capital: { crypto: 0, stock: 0, currency: CURRENCY.CAD.value },
     currency: CURRENCY.EUR.value,
   });
+  const [currencyList, setCurrencyList] = useState([]);
 
   useEffect(() => {
-    // if (!open) {
-    //   setOptions([]);
-    // }
-    // console.log(user);
-  }, [user]);
+    new Axios().getCurrencyList().then((response) => {
+      setCurrencyList(response.data);
+    });
+  }, []);
 
   const handleSubmit = (event) => {
     const form = event.currentTarget;
@@ -34,7 +34,7 @@ function RegisterForm({ onHide }) {
         onHide();
         setUser({
           capital: { crypto: 0, stock: 0 },
-          currency: CURRENCY.EUR.value,
+          currency: CURRENCY.CAD.value,
         });
       })
       .catch((error) => {
@@ -49,6 +49,9 @@ function RegisterForm({ onHide }) {
     if (key === "crypto" || key === "stock") {
       let capital = { ...user.capital, [key]: event.target.value };
       setUser({ ...user, capital });
+    } else if (key === "currency") {
+      let capital = { ...user.capital, [key]: event.target.value };
+      setUser({ ...user, capital, [key]: event.target.value });
     } else {
       setUser({ ...user, [key]: event.target.value });
     }
@@ -153,8 +156,8 @@ function RegisterForm({ onHide }) {
               onChange={handleUserPostData}
               keyname="currency"
             >
-              {Object.values(CURRENCY).map((currency, i) => (
-                <option key={i}>{currency.value}</option>
+              {currencyList.map((currency, i) => (
+                <option key={i}>{currency}</option>
               ))}
             </Form.Select>
           </FloatingLabel>

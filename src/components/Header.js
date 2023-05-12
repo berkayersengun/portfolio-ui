@@ -1,11 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Nav,
-  Button,
   Navbar,
   NavDropdown,
-  Form,
-  FormControl,
   Container,
   ToggleButton,
   ToggleButtonGroup,
@@ -15,13 +12,65 @@ import { useNavigate } from "react-router-dom";
 import styles from "./header.module.css";
 import "./header.css";
 import { logout } from "../utils/common";
+import Axios from "../services/axios";
 
-function Header({ type, setType, setExpanded, timerId, setPage, page }) {
+function Header({
+  type,
+  setType,
+  setExpanded,
+  timerId,
+  setPage,
+  page,
+  setLoginInfo,
+  loginInfo,
+  currency,
+  setCurrency,
+}) {
   const navigate = useNavigate();
+  const [currencyList, setCurrencyList] = useState([]);
+
+  const handleOnSelect = (eventKey) => {
+    if (currencyList.includes(eventKey)) {
+      new Axios()
+        .changeCurrency(localStorage.getItem("username"), eventKey)
+        .then((response) => {
+          setCurrency(eventKey);
+          setLoginInfo({ ...loginInfo, timerId: 0 });
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    } else if (eventKey === "logout") {
+      logout(navigate, timerId);
+    }
+  };
+
   const handleChange = (val) => {
     setType(val);
     setExpanded({ open: {} });
   };
+
+  function getCurrencyList() {
+    return currencyList.map((currency, i) => {
+      return (
+        <NavDropdown.Item key={i} eventKey={currency}>
+          {currency}
+        </NavDropdown.Item>
+      );
+    });
+  }
+
+  useEffect(() => {
+    let ignore = false;
+    new Axios().getCurrencyList().then((response) => {
+      if (!ignore) {
+        setCurrencyList(response.data);
+      }
+    });
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   return (
     <>
@@ -92,7 +141,7 @@ function Header({ type, setType, setExpanded, timerId, setPage, page }) {
             </Nav.Link>
           </Nav>
           <Container fluid className="d-flex justify-content-end">
-            <Form className="d-flex">
+            {/* <Form className="d-flex">
               <FormControl
                 type="search"
                 placeholder="Search"
@@ -102,8 +151,15 @@ function Header({ type, setType, setExpanded, timerId, setPage, page }) {
               <Button className="me-2" variant="outline-secondary">
                 Search
               </Button>
-            </Form>
-            <Nav onSelect={(eventKey) => logout(navigate, timerId)}>
+            </Form> */}
+            <Nav onSelect={handleOnSelect}>
+              <NavDropdown
+                className={styles.username}
+                title={currency}
+                id="navbarScrollingDropdown"
+              >
+                {getCurrencyList()}
+              </NavDropdown>
               <NavDropdown
                 className={styles.username}
                 title={localStorage.getItem("username") || "Anonymous"}

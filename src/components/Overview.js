@@ -60,6 +60,7 @@ const CapitalField = ({
           handleChangeNet={handleChangeNet}
           handleSubmitCapital={handleSubmitCapital}
           handleOnKeyPress={handleOnKeyPress}
+          currency={currency}
         ></FormCapital>
       </Form>
     );
@@ -94,11 +95,16 @@ const CapitalField = ({
   );
 };
 
-const FormCapital = ({ capitalValue, handleChangeNet, handleOnKeyPress }) => {
+const FormCapital = ({
+  capitalValue,
+  handleChangeNet,
+  handleOnKeyPress,
+  currency,
+}) => {
   return Object.entries(capitalValue).map(([type, value], i) => (
     <Form.Group key={type} as={Row} className="align-items-center">
       <Form.Label column xl="4" style={{ textTransform: "capitalize" }}>
-        {type}
+        {`${type} (${getCurrencySymbol(currency)})`}
       </Form.Label>
       <Col xl="8">
         <Form.Control

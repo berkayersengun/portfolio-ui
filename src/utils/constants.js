@@ -24,6 +24,14 @@ export const CURRENCY = {
     value: "USD",
     symbol: "$",
   },
+  CAD: {
+    value: "CAD",
+    symbol: "CA$",
+  },
+  TRY: {
+    value: "TRY",
+    symbol: "₺",
+  },
 };
 
 export const SORT_DIRECTION = {

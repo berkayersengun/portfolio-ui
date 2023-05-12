@@ -43,6 +43,7 @@ function App() {
       label: "Holdings Value",
     },
   });
+  const [currency, setCurrency] = useState("");
 
   const ErrorModal = ({
     show,
@@ -66,10 +67,13 @@ function App() {
     </Modal>
   );
 
-  const fetchPort = async () => {
+  const fetchPort = async (ignore) => {
     try {
       const response = await new Axios().fetchPortfolio();
-      setPortfolio(response.data);
+      if (!ignore) {
+        setPortfolio(response.data);
+        setCurrency(response.data.currency);
+      }
     } catch (error) {
       let message = "";
       if (error.response && error.response.data) {
@@ -101,17 +105,19 @@ function App() {
   };
 
   useEffect(() => {
+    let ignore = false;
     const username = localStorage.getItem("username");
     if (!username) {
       navigate("/login", { replace: true });
     }
     if ((loginInfo.timerId === -1 || loginInfo.timerId === 0) && username) {
-      fetchPort().then(() => startInterval());
+      fetchPort(ignore).then(() => startInterval());
     }
     return () => {
       if (loginInfo.timerId !== 0) {
         clearInterval(loginInfo.timerId);
       }
+      ignore = true;
     };
   }, [loginInfo.timerId]);
 
@@ -195,6 +201,10 @@ function App() {
             timerId: loginInfo.timerId,
             setPage,
             page,
+            setLoginInfo,
+            loginInfo,
+            currency,
+            setCurrency,
           }}
         ></Header>
         <Overview {...{ type, portfolio, loginInfo, setLoginInfo }}></Overview>

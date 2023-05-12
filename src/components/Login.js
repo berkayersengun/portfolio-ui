@@ -6,6 +6,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { minToMillisec } from "../utils/common";
 import RegisterModal from "./RegisterModal";
 
+const axios = new Axios();
+
 const Login = ({ setLoginInfo, loginInfo }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,7 +20,7 @@ const Login = ({ setLoginInfo, loginInfo }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    new Axios()
+    axios
       .login({
         username,
         password,
@@ -75,9 +77,6 @@ const Login = ({ setLoginInfo, loginInfo }) => {
             placeholder="Enter username"
             onChange={(e) => setUserName(e.target.value)}
           />
-          <Form.Text className="text-muted">
-            We'll never share your email with anyone else.
-          </Form.Text>
         </Form.Group>
         <Form.Group className="mb-3" controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>

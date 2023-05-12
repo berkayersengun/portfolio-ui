@@ -22,6 +22,7 @@ class Axios {
     this.instance = axios.create({ baseURL: this.host });
     this.instance.defaults.headers.get["Content-Type"] = "application/json";
     this.instance.defaults.headers.post["Content-Type"] = "application/json";
+    this.instance.defaults.headers.patch["Content-Type"] = "application/json";
     // allows sending httpOnly cookies back to backend
     this.instance.defaults.withCredentials = true;
 
@@ -63,6 +64,17 @@ class Axios {
 
   async logout() {
     return await this.instance.post("auth/logout/");
+  }
+
+  async getCurrencyList() {
+    return this.instance.get(`/v1/currencies/`);
+  }
+
+  async changeCurrency(username, currency) {
+    const body = JSON.stringify({
+      currency: currency,
+    });
+    return await this.instance.patch("/v1/accounts/" + username, body);
   }
 
   async refreshToken() {
