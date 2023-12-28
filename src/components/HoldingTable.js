@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Table } from "react-bootstrap";
 import HoldingModal from "./HoldingModal";
-import { CURRENCY, SORT_DIRECTION, COLUMNS } from "../utils/constants";
+import { SORT_DIRECTION, COLUMNS } from "../utils/constants";
 import styles from "./holdingTable.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -195,10 +195,11 @@ export default function HoldingTable({
   setLoginInfo,
   sortConfig,
   setSortConfig,
+  showAddModal,
+  setShowAddModal,
 }) {
-  const [showAddModal, setShowAddModal] = useState(false);
   const [holding, setHolding] = useState({
-    currency: CURRENCY.EUR.value,
+    currency: localStorage.getItem("currency"),
   });
 
   const handleAdd = () => {
@@ -273,7 +274,7 @@ export default function HoldingTable({
         show={showAddModal}
         onHide={() => {
           setShowAddModal(false);
-          setHolding({ currency: CURRENCY.EUR.value });
+          setHolding({ currency: localStorage.getItem("currency") });
           setLoginInfo({ ...loginInfo, timerId: 0 });
         }}
       ></HoldingModal>

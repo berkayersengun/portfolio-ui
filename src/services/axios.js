@@ -83,13 +83,17 @@ class Axios {
     return response;
   }
 
-  async fetchPortfolio() {
-    return this.instance.get(`/v1/portfolio/`);
+  async fetchPortfolio(currency) {
+    const params = {
+      currency: currency,
+    };
+    return this.instance.get(`/v1/portfolio`, { params: params });
   }
 
-  async fetchHistory(history_params = HIST_PARAMS.MAX) {
+  async fetchHistory(history_params = HIST_PARAMS.MAX, currency) {
     const params = {
       range: history_params,
+      currency: currency,
     };
     return this.instance.get(`/v1/history/`, { params: params });
   }
@@ -119,6 +123,10 @@ class Axios {
     return this.instance.get("/v1/search/", {
       params: { symbol: sym },
     });
+  }
+
+  async getUser(user) {
+    return this.instance.get(`/v1/accounts/${user}`);
   }
 
   addUser(body) {

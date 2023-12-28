@@ -12,7 +12,6 @@ import { useNavigate } from "react-router-dom";
 import styles from "./header.module.css";
 import "./header.css";
 import { logout } from "../utils/common";
-import Axios from "../services/axios";
 
 function Header({
   type,
@@ -23,23 +22,14 @@ function Header({
   page,
   setLoginInfo,
   loginInfo,
-  currency,
-  setCurrency,
+  currencyList,
 }) {
   const navigate = useNavigate();
-  const [currencyList, setCurrencyList] = useState([]);
 
   const handleOnSelect = (eventKey) => {
     if (currencyList.includes(eventKey)) {
-      new Axios()
-        .changeCurrency(localStorage.getItem("username"), eventKey)
-        .then((response) => {
-          setCurrency(eventKey);
-          setLoginInfo({ ...loginInfo, timerId: 0 });
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+      localStorage.setItem("currency", eventKey);
+      setLoginInfo({ ...loginInfo, timerId: 0 });
     } else if (eventKey === "logout") {
       logout(navigate, timerId);
     }
@@ -59,18 +49,6 @@ function Header({
       );
     });
   }
-
-  useEffect(() => {
-    let ignore = false;
-    new Axios().getCurrencyList().then((response) => {
-      if (!ignore) {
-        setCurrencyList(response.data);
-      }
-    });
-    return () => {
-      ignore = true;
-    };
-  }, []);
 
   return (
     <>
@@ -155,7 +133,7 @@ function Header({
             <Nav onSelect={handleOnSelect}>
               <NavDropdown
                 className={styles.username}
-                title={currency}
+                title={localStorage.getItem("currency")}
                 id="navbarScrollingDropdown"
               >
                 {getCurrencyList()}

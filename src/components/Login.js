@@ -26,23 +26,34 @@ const Login = ({ setLoginInfo, loginInfo }) => {
         password,
       })
       .then((response) => {
-        localStorage.setItem("username", username);
-        setLoginInfo({
-          ...loginInfo,
-          timerId: 0,
-        });
-        navigate("/", { replace: true });
+        axios
+          .getUser(username)
+          .then((response) => {
+            localStorage.setItem("currency", response.data.currency);
+            localStorage.setItem("username", response.data.username);
+            setLoginInfo({
+              ...loginInfo,
+              timerId: 0,
+            });
+          })
+          .catch((error) => {
+            handleLoginError(error);
+          });
       })
       .catch((error) => {
-        if (error.response && error.response.data) {
-          setErrorMessage(JSON.stringify(error.response.data));
-        } else {
-          setErrorMessage(error.message);
-        }
-        setTimeout(() => {
-          setErrorMessage();
-        }, minToMillisec(0.2));
+        handleLoginError(error);
       });
+  };
+
+  const handleLoginError = (error) => {
+    if (error.response && error.response.data) {
+      setErrorMessage(JSON.stringify(error.response.data));
+    } else {
+      setErrorMessage(error.message);
+    }
+    setTimeout(() => {
+      setErrorMessage();
+    }, minToMillisec(0.2));
   };
 
   const AlertMessage = () => {

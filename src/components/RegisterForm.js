@@ -9,7 +9,7 @@ function RegisterForm({ onHide }) {
   const [errorMessage, setErrorMessage] = useState({});
   const [user, setUser] = useState({
     capital: { crypto: 0, stock: 0, currency: CURRENCY.CAD.value },
-    currency: CURRENCY.EUR.value,
+    currency: CURRENCY.CAD.value,
   });
   const [currencyList, setCurrencyList] = useState([]);
 

@@ -17,6 +17,7 @@ import { Modal, Button } from "react-bootstrap";
 import Chart from "./components/Chart";
 
 function App() {
+  const INTERVAL = 2;
   const navigate = useNavigate();
   const [type, setType] = useState(HOLDING_TYPE.TOTAL);
   const [page, setPage] = useState(TAB.LIST);
@@ -43,7 +44,7 @@ function App() {
       label: "Holdings Value",
     },
   });
-  const [currency, setCurrency] = useState("");
+  const [currencyList, setCurrencyList] = useState([]);
 
   const ErrorModal = ({
     show,
@@ -69,10 +70,10 @@ function App() {
 
   const fetchPort = async (ignore) => {
     try {
-      const response = await new Axios().fetchPortfolio();
+      let currency = localStorage.getItem("currency");
+      const response = await new Axios().fetchPortfolio(currency);
       if (!ignore) {
         setPortfolio(response.data);
-        setCurrency(response.data.currency);
       }
     } catch (error) {
       let message = "";
@@ -97,7 +98,7 @@ function App() {
   };
 
   const startInterval = () => {
-    let intervalId = setInterval(fetchPort, minToMillisec(2));
+    let intervalId = setInterval(fetchPort, minToMillisec(INTERVAL));
     setLoginInfo({
       timerId: intervalId,
       loading: false,
@@ -156,6 +157,18 @@ function App() {
     setHoldingsData(sorted);
   }, [type, portfolio.holdings_data, sortConfig]);
 
+  useEffect(() => {
+    let ignore = false;
+    new Axios().getCurrencyList().then((response) => {
+      if (!ignore) {
+        setCurrencyList(response.data);
+      }
+    });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   const handleClose = (setLoginInfo, loginInfo, setErrorModalState) => () => {
     setErrorModalState({
       isError: false,
@@ -179,6 +192,8 @@ function App() {
                 setLoginInfo,
                 setSortConfig,
                 sortConfig,
+                showAddModal,
+                setShowAddModal,
               }}
             ></HoldingTable>
           </>
@@ -203,13 +218,11 @@ function App() {
             page,
             setLoginInfo,
             loginInfo,
-            currency,
-            setCurrency,
+            currencyList,
           }}
         ></Header>
         <Overview {...{ type, portfolio, loginInfo, setLoginInfo }}></Overview>
         {bodyComponent}
-
         <ErrorModal
           show={errorModalState.isError}
           handleClose={handleClose(setLoginInfo, loginInfo, setErrorModalState)} //retry in case connection lost temporarly

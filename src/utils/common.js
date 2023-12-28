@@ -1,7 +1,7 @@
 import { CURRENCY, SORT_DIRECTION } from "../utils/constants";
 import Axios from "../services/axios";
 
-export const getCurrencySymbol = (currency = "EUR") =>
+export const getCurrencySymbol = (currency = "CAD") =>
   CURRENCY[currency].symbol;
 
 const between = (x, min, max) => {

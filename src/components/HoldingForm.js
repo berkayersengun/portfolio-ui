@@ -16,7 +16,9 @@ function HoldingForm({ onHide }) {
   const [validated, setValidated] = useState(false);
   const [validation, setValidation] = useState("");
   const [errorMessage, setErrorMessage] = useState({});
-  const [holding, setHolding] = useState({ currency: CURRENCY.EUR.value });
+  const [holding, setHolding] = useState({
+    currency: localStorage.getItem("currency"),
+  });
 
   useEffect(() => {
     if (!open) {
@@ -111,7 +113,7 @@ function HoldingForm({ onHide }) {
       .addHolding(holding)
       .then((response) => {
         onHide();
-        setHolding({ currency: CURRENCY.EUR.value });
+        setHolding({ currency: localStorage.getItem("currency") });
       })
       .catch((error) => {
         setErrorMessage(error.response.data);
@@ -208,6 +210,7 @@ function HoldingForm({ onHide }) {
             aria-label="Default select example"
             onChange={handleSubmitAddHolding}
             keyname="currency"
+            defaultValue={localStorage.getItem("currency")}
           >
             {Object.values(CURRENCY).map((currency, i) => (
               <option key={i}>{currency.value}</option>

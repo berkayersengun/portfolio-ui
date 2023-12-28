@@ -154,7 +154,8 @@ function Chart({ type, range, setRange }) {
   const [historyData, setHistoryData] = useState([]);
 
   useEffect(() => {
-    new Axios().fetchHistory(range).then((response) => {
+    const currency = localStorage.getItem("currency");
+    new Axios().fetchHistory(range, currency).then((response) => {
       setHistoryData(response.data);
     });
   }, [range]);
