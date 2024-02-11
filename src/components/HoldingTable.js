@@ -12,7 +12,39 @@ import {
 } from "../utils/common";
 import "./holdingTable.css";
 
-const Entities = ({ data: entities, expanded, setExpanded }) => {
+const DeleteButton = ({ entities, deleteModal, setDeleteModal }) => {
+  return (
+    <Button
+      size="sm"
+      variant="outline-secondary"
+      onClick={() =>
+        setDeleteModal({ ...deleteModal, show: true, entities: entities })
+      }
+    >
+      <FontAwesomeIcon icon="fa-solid fa-trash" />
+    </Button>
+  );
+};
+
+const EditButton = ({ holdingId }) => (
+  <Button
+    // type="submit"
+    size="sm"
+    variant="outline-secondary"
+    // className="ms-3 py-1 px-2"
+    onClick={(event) => console.log(holdingId)}
+  >
+    <FontAwesomeIcon icon="pen-to-square" size="xs" />
+  </Button>
+);
+
+const Entities = ({
+  data: entities,
+  expanded,
+  setExpanded,
+  deleteModal,
+  setDeleteModal,
+}) => {
   return entities.map((entity, subIndex) => {
     return (
       <EachRow
@@ -22,45 +54,45 @@ const Entities = ({ data: entities, expanded, setExpanded }) => {
         isEntity
         expanded={expanded}
         setExpanded={setExpanded}
+        entities={[entity]}
+        deleteModal={deleteModal}
+        setDeleteModal={setDeleteModal}
       ></EachRow>
     );
   });
 };
 
-const TableBody = ({ data, expanded, setExpanded }) => {
+const TableBody = ({
+  data,
+  expanded,
+  setExpanded,
+  deleteModal,
+  setDeleteModal,
+}) => {
   return data.map((holdingData, index) => {
-    if (expanded.open[index + 1]) {
-      return (
-        <React.Fragment key={`entity${index}`}>
-          <EachRow
-            rowNo={index + 1}
-            row={holdingData.average}
-            expanded={expanded}
-            setExpanded={setExpanded}
-          ></EachRow>
-          <tr>
-            <td colSpan="13" className="pt-2 border-bottom border-dark"></td>
-          </tr>
+    return (
+      <React.Fragment key={`entity${index}`}>
+        <EachRow
+          rowNo={index + 1}
+          row={holdingData.average}
+          expanded={expanded}
+          setExpanded={setExpanded}
+          entities={holdingData.entities}
+          deleteModal={deleteModal}
+          setDeleteModal={setDeleteModal}
+        ></EachRow>
+        {expanded.open[index + 1] ? (
           <Entities
             data={holdingData.entities}
             setExpanded
             expanded={expanded}
+            deleteModal={deleteModal}
+            setDeleteModal={setDeleteModal}
           ></Entities>
-          <tr>
-            <td colSpan="13" className="pb-2"></td>
-          </tr>
-        </React.Fragment>
-      );
-    }
-
-    return (
-      <EachRow
-        key={`index${index}`}
-        rowNo={index + 1}
-        row={holdingData.average}
-        expanded={expanded}
-        setExpanded={setExpanded}
-      ></EachRow>
+        ) : (
+          <React.Fragment />
+        )}
+      </React.Fragment>
     );
   });
 };
@@ -72,7 +104,16 @@ const Arrow = ({ isOpen }) => {
   return <FontAwesomeIcon icon="caret-right" />;
 };
 
-const EachRow = ({ row: holding, rowNo, isEntity, expanded, setExpanded }) => {
+const EachRow = ({
+  row: holding,
+  rowNo,
+  isEntity,
+  expanded,
+  setExpanded,
+  entities,
+  deleteModal,
+  setDeleteModal,
+}) => {
   const handleRowClick = (rowNo) => (event) => {
     setExpanded({
       open: { ...expanded.open, [rowNo]: !expanded.open[rowNo] },
@@ -88,7 +129,7 @@ const EachRow = ({ row: holding, rowNo, isEntity, expanded, setExpanded }) => {
   let colspan = 1;
   let cellPadding = "";
   let rightAlign = "";
-  let rowStyle;
+  let rowStyle = styles.firstrow;
   if (isEntity) {
     cellPadding = `ps-3 ${styles.row}`;
     colspan = 2;
@@ -98,7 +139,7 @@ const EachRow = ({ row: holding, rowNo, isEntity, expanded, setExpanded }) => {
   }
 
   return (
-    <tr className={rowStyle}>
+    <tr className={`${rowStyle}`}>
       {firstRow}
       <td colSpan={colspan} className={`${cellPadding} ${rightAlign}`}>
         {rowNo}
@@ -143,6 +184,13 @@ const EachRow = ({ row: holding, rowNo, isEntity, expanded, setExpanded }) => {
       <td className={cellPadding}>
         {formatPrice(holding.value.current, holding.currency)}
       </td>
+      <td className={styles.edit}>
+        {/* {isEntity ? <EditButton holdingId={holding}></EditButton> : ""} */}
+        <DeleteButton
+          {...{ entities, deleteModal, setDeleteModal }}
+        ></DeleteButton>
+        {/* {isEntity ? <DeleteButton holdingId={holding}></DeleteButton> : ""} */}
+      </td>
     </tr>
   );
 };
@@ -169,9 +217,13 @@ const ColumnButton = ({ column, sortConfig }) => (
 
 const Columns = ({ columns, sortConfig, handleSort }) => {
   return columns.map((column) => {
+    let span = 1;
+    if (column.label === "#" || column.label === "Value") {
+      span = 2;
+    }
     return (
       <th
-        colSpan={column.label === "#" ? 2 : 1}
+        colSpan={span}
         key={`column-${column.label}`}
         onClick={handleSort(column, sortConfig)}
         className={`text-center`}
@@ -191,12 +243,14 @@ export default function HoldingTable({
   holdingsData,
   expanded,
   setExpanded,
-  loginInfo,
-  setLoginInfo,
+  timerId,
+  setTimerId,
   sortConfig,
   setSortConfig,
   showAddModal,
   setShowAddModal,
+  deleteModal,
+  setDeleteModal,
 }) {
   const [holding, setHolding] = useState({
     currency: localStorage.getItem("currency"),
@@ -204,7 +258,7 @@ export default function HoldingTable({
 
   const handleAdd = () => {
     setShowAddModal(true);
-    clearInterval(loginInfo.timerId);
+    clearInterval(timerId);
   };
 
   const handleSort = (column, sortConfig) => (event) => {
@@ -257,6 +311,8 @@ export default function HoldingTable({
             data={holdingsData}
             expanded={expanded}
             setExpanded={setExpanded}
+            deleteModal={deleteModal}
+            setDeleteModal={setDeleteModal}
           ></TableBody>
         </tbody>
       </Table>
@@ -275,7 +331,7 @@ export default function HoldingTable({
         onHide={() => {
           setShowAddModal(false);
           setHolding({ currency: localStorage.getItem("currency") });
-          setLoginInfo({ ...loginInfo, timerId: 0 });
+          setTimerId(0);
         }}
       ></HoldingModal>
     </>

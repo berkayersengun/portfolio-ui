@@ -2,6 +2,7 @@ import "./App.css";
 import Header from "./components/Header";
 import HoldingTable from "./components/HoldingTable";
 import Overview from "./components/Overview";
+import DeleteModal from "./components/DeleteModal";
 import React, { useState, useEffect } from "react";
 import {
   HOLDING_TYPE,
@@ -15,6 +16,7 @@ import Login from "./components/Login";
 import Axios from "./services/axios";
 import { Modal, Button } from "react-bootstrap";
 import Chart from "./components/Chart";
+import Popup from "./components/Popup";
 
 function App() {
   const INTERVAL = 2;
@@ -31,10 +33,8 @@ function App() {
   // timerId
   // timerId: -1 -> initial state, before any user logged in
   // timerId: 0 -> to refresh timer, after user logged in
-  const [loginInfo, setLoginInfo] = useState({
-    timerId: -1,
-    loading: true,
-  });
+  const [timerId, setTimerId] = useState(-1);
+  const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [expanded, setExpanded] = useState({ open: {} });
   const [portfolio, setPortfolio] = useState(PORT_INITIAL);
@@ -45,6 +45,17 @@ function App() {
     },
   });
   const [currencyList, setCurrencyList] = useState([]);
+  const [popups, setPopups] = useState([]);
+  const [deleteModal, setDeleteModal] = useState({
+    show: false,
+    entities: [],
+  });
+
+  const popupOnClose = (popup) => (event) => {
+    const popupsEdited = popups.filter((item) => item !== popup);
+    setPopups(popupsEdited);
+    setTimerId(0);
+  };
 
   const ErrorModal = ({
     show,
@@ -74,6 +85,7 @@ function App() {
       const response = await new Axios().fetchPortfolio(currency);
       if (!ignore) {
         setPortfolio(response.data);
+        setLoading(false);
       }
     } catch (error) {
       let message = "";
@@ -83,7 +95,13 @@ function App() {
           errorData.refresh &&
           errorData.refresh[0] === "This field may not be null."
         ) {
-          logout(navigate, loginInfo.timerId, setErrorModalState);
+          logout(
+            navigate,
+            timerId,
+            setPortfolio,
+            setLoading,
+            setErrorModalState
+          );
         }
         message = JSON.stringify(errorData);
       } else {
@@ -99,10 +117,12 @@ function App() {
 
   const startInterval = () => {
     let intervalId = setInterval(fetchPort, minToMillisec(INTERVAL));
-    setLoginInfo({
-      timerId: intervalId,
-      loading: false,
-    });
+    setTimerId(intervalId);
+  };
+
+  const fetchCurrencyList = async () => {
+    const response = await new Axios().getCurrencyList();
+    setCurrencyList(response.data);
   };
 
   useEffect(() => {
@@ -111,16 +131,17 @@ function App() {
     if (!username) {
       navigate("/login", { replace: true });
     }
-    if ((loginInfo.timerId === -1 || loginInfo.timerId === 0) && username) {
+    if ((timerId === -1 || timerId === 0) && username) {
+      fetchCurrencyList();
       fetchPort(ignore).then(() => startInterval());
     }
     return () => {
-      if (loginInfo.timerId !== 0) {
-        clearInterval(loginInfo.timerId);
+      if (timerId !== 0) {
+        clearInterval(timerId);
       }
       ignore = true;
     };
-  }, [loginInfo.timerId]);
+  }, [timerId]);
 
   useEffect(() => {
     switch (page) {
@@ -131,7 +152,7 @@ function App() {
         startInterval();
         break;
       case TAB.CHART:
-        clearInterval(loginInfo.timerId);
+        clearInterval(timerId);
         break;
       default:
         break;
@@ -140,7 +161,7 @@ function App() {
 
   useEffect(() => {
     if (showAddModal || errorModalState.isError) {
-      clearInterval(loginInfo.timerId);
+      clearInterval(timerId);
     }
   }, [showAddModal, errorModalState.isError]);
 
@@ -157,24 +178,12 @@ function App() {
     setHoldingsData(sorted);
   }, [type, portfolio.holdings_data, sortConfig]);
 
-  useEffect(() => {
-    let ignore = false;
-    new Axios().getCurrencyList().then((response) => {
-      if (!ignore) {
-        setCurrencyList(response.data);
-      }
-    });
-    return () => {
-      ignore = true;
-    };
-  }, []);
-
-  const handleClose = (setLoginInfo, loginInfo, setErrorModalState) => () => {
+  const handleClose = (setTimerId, setErrorModalState) => () => {
     setErrorModalState({
       isError: false,
       message: "",
     });
-    setLoginInfo({ ...loginInfo, timerId: 0 });
+    setTimerId(0);
   };
 
   const Main = () => {
@@ -188,12 +197,14 @@ function App() {
                 holdingsData,
                 expanded,
                 setExpanded,
-                loginInfo,
-                setLoginInfo,
+                timerId,
+                setTimerId,
                 setSortConfig,
                 sortConfig,
                 showAddModal,
                 setShowAddModal,
+                deleteModal,
+                setDeleteModal,
               }}
             ></HoldingTable>
           </>
@@ -213,24 +224,43 @@ function App() {
             type,
             setType,
             setExpanded,
-            timerId: loginInfo.timerId,
             setPage,
             page,
-            setLoginInfo,
-            loginInfo,
+            timerId,
+            setTimerId,
             currencyList,
+            setPortfolio,
+            setLoading,
           }}
         ></Header>
-        <Overview {...{ type, portfolio, loginInfo, setLoginInfo }}></Overview>
+        <Overview
+          {...{ type, portfolio, timerId, setTimerId, loading }}
+        ></Overview>
         {bodyComponent}
         <ErrorModal
           show={errorModalState.isError}
-          handleClose={handleClose(setLoginInfo, loginInfo, setErrorModalState)} //retry in case connection lost temporarly
-          handleCloseLogout={() =>
-            logout(navigate, loginInfo.timerId, setErrorModalState)
-          }
+          handleClose={handleClose(setTimerId, setErrorModalState)} //retry in case connection lost temporarly
+          handleCloseLogout={() => {
+            logout(
+              navigate,
+              timerId,
+              setPortfolio,
+              setLoading,
+              setErrorModalState
+            );
+          }}
           errorMessage={errorModalState.message}
         ></ErrorModal>
+        <Popup {...{ popups, popupOnClose }}></Popup>
+        <DeleteModal
+          {...{
+            deleteModal,
+            setDeleteModal,
+            popups,
+            setPopups,
+            setTimerId,
+          }}
+        ></DeleteModal>
       </>
     );
   };
@@ -238,10 +268,7 @@ function App() {
   // TODO create layout component wrap below
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={<Login setLoginInfo={setLoginInfo} loginInfo={loginInfo} />}
-      />
+      <Route path="/login" element={<Login setTimerId={setTimerId} />} />
       <Route path="/" element={<Main />} />
     </Routes>
   );

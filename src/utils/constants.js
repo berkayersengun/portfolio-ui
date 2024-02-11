@@ -16,6 +16,10 @@ export const TAB = {
 };
 
 export const CURRENCY = {
+  CAD: {
+    value: "CAD",
+    symbol: "CA$",
+  },
   EUR: {
     value: "EUR",
     symbol: "€",
@@ -23,10 +27,6 @@ export const CURRENCY = {
   USD: {
     value: "USD",
     symbol: "$",
-  },
-  CAD: {
-    value: "CAD",
-    symbol: "CA$",
   },
   TRY: {
     value: "TRY",
@@ -154,6 +154,10 @@ export const COLUMNS = [
     key: ["average", "value", "current"],
     label: "Value",
   },
+  // {
+  //   key: ["edit"],
+  //   label: "edit",
+  // },
 ];
 
 export const HIST_PARAMS = {

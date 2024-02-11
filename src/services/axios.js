@@ -109,6 +109,10 @@ class Axios {
     // }
   }
 
+  deleteHolding(holdingId) {
+    return this.instance.delete(`/v1/holdings/${holdingId}`);
+  }
+
   search(sym) {
     // const body = JSON.stringify({
     //   username: username,

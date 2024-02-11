@@ -16,6 +16,8 @@ import {
   faPenToSquare,
   faCheck,
   faCaretUp,
+  faTrashCan,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
@@ -29,7 +31,9 @@ library.add(
   faCaretUp,
   faCaretRight,
   faPenToSquare,
-  faCheck
+  faCheck,
+  faTrashCan,
+  faTrash
 );
 
 ReactDOM.render(

@@ -8,7 +8,7 @@ import RegisterModal from "./RegisterModal";
 
 const axios = new Axios();
 
-const Login = ({ setLoginInfo, loginInfo }) => {
+const Login = ({ setTimerId }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [username, setUserName] = useState();
@@ -30,11 +30,9 @@ const Login = ({ setLoginInfo, loginInfo }) => {
           .getUser(username)
           .then((response) => {
             localStorage.setItem("currency", response.data.currency);
+            localStorage.setItem("userCurrency", response.data.currency);
             localStorage.setItem("username", response.data.username);
-            setLoginInfo({
-              ...loginInfo,
-              timerId: 0,
-            });
+            setTimerId(0);
           })
           .catch((error) => {
             handleLoginError(error);

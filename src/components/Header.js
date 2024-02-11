@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Nav,
   Navbar,
@@ -17,21 +17,22 @@ function Header({
   type,
   setType,
   setExpanded,
-  timerId,
   setPage,
   page,
-  setLoginInfo,
-  loginInfo,
+  timerId,
+  setTimerId,
   currencyList,
+  setPortfolio,
+  setLoading,
 }) {
   const navigate = useNavigate();
 
   const handleOnSelect = (eventKey) => {
     if (currencyList.includes(eventKey)) {
       localStorage.setItem("currency", eventKey);
-      setLoginInfo({ ...loginInfo, timerId: 0 });
+      setTimerId(0);
     } else if (eventKey === "logout") {
-      logout(navigate, timerId);
+      logout(navigate, timerId, setPortfolio, setLoading);
     }
   };
 
@@ -143,6 +144,9 @@ function Header({
                 title={localStorage.getItem("username") || "Anonymous"}
                 id="navbarScrollingDropdown"
               >
+                <NavDropdown.Item disabled>
+                  {localStorage.getItem("userCurrency")}
+                </NavDropdown.Item>
                 <NavDropdown.Item eventKey="logout">Logout</NavDropdown.Item>
               </NavDropdown>
             </Nav>

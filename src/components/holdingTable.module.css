@@ -29,8 +29,19 @@
   /* font-style: oblique; */
   font-style: italic;
 }
+
+.firstrow {
+  border-bottom-style: solid;
+  border-bottom-width: medium !important;
+}
+
 /* .middle {
   padding-top: 20px;
   padding-bottom: 20px;
   padding-left: 20px;
 } */
+
+.edit {
+  text-align: center;
+  width: 2%;
+}

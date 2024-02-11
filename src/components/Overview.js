@@ -120,7 +120,17 @@ const FormCapital = ({
   ));
 };
 
-const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
+const LoadingComponent = () => {
+  return (
+    <>
+      <div>
+        <Spinner animation="border" role="status"></Spinner>
+      </div>
+    </>
+  );
+};
+
+const Overview = ({ type, portfolio, timerId, setTimerId, loading }) => {
   if (type === "all") {
     type = HOLDING_TYPE.TOTAL;
   }
@@ -144,15 +154,6 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
       : { [type]: portfolio.overview.capital[type] };
   const [capitalValue, setCapitalValue] = useState(cap);
   // TODO overview renders twice when you change tabs
-  const LoadingComponent = () => {
-    return (
-      <>
-        <div>
-          <Spinner animation="border" role="status"></Spinner>
-        </div>
-      </>
-    );
-  };
 
   const Type = ({ type, loadingState, currency, className }) => {
     let component;
@@ -176,7 +177,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
         localStorage.getItem("username"),
         capitalValue
       );
-      setLoginInfo({ ...loginInfo, timerId: 0 });
+      setTimerId(0);
     } catch (error) {
       // TODO add this error somewhere
       console.log(error.response.data);
@@ -190,7 +191,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
   };
 
   const handleEditCapital = (event) => {
-    clearInterval(loginInfo.timerId);
+    clearInterval(timerId);
     setEditableCapital(!editableCapital);
   };
 
@@ -276,7 +277,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
         <Col as={Card}>
           <Type
             type={type}
-            loadingState={loginInfo.loading}
+            loadingState={loading}
             currency={currency}
             className={styles.typeMobile}
           ></Type>
@@ -292,7 +293,7 @@ const Overview = ({ type, portfolio, setLoginInfo, loginInfo }) => {
         <Col xl={2} as={Card}>
           <Type
             type={type}
-            loadingState={loginInfo.loading}
+            loadingState={loading}
             currency={currency}
             className={styles.type}
           ></Type>

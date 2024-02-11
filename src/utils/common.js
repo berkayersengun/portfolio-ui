@@ -1,4 +1,4 @@
-import { CURRENCY, SORT_DIRECTION } from "../utils/constants";
+import { CURRENCY, SORT_DIRECTION, PORT_INITIAL } from "../utils/constants";
 import Axios from "../services/axios";
 
 export const getCurrencySymbol = (currency = "CAD") =>
@@ -79,7 +79,13 @@ export const getStyleForChange = (percentage) => {
   return style;
 };
 
-export const logout = (navigate, timerId, setErrorModalState) => {
+export const logout = (
+  navigate,
+  timerId,
+  setPortfolio,
+  setLoading,
+  setErrorModalState
+) => {
   new Axios().logout();
   if (setErrorModalState) {
     setErrorModalState({
@@ -87,8 +93,10 @@ export const logout = (navigate, timerId, setErrorModalState) => {
       message: "",
     });
   }
+  setPortfolio(PORT_INITIAL);
   localStorage.clear();
   clearInterval(timerId);
+  setLoading(true);
   navigate("/login");
 };
 
